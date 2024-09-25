@@ -43,7 +43,31 @@ VandyCV solves this issue by offering major-specific resume templates, an intuit
 ## Setup Instructions
 
 1. **Clone the repository**:
+
    ```bash
    git clone https://github.com/your-repo/VandyCV.git
    cd VandyCV
+   ```
+
+2. **Install dependencies**
+
+   ```bash
+   cd client
+   npm install
+   cd ../server
+   python3 -m venv venv         # Create a virtual environment
+   source venv/bin/activate      # Activate the virtual environment (macOS/Linux)
+   venv\Scripts\activate         # Activate the virtual environment (Windows)
+   pip install -r requirements.txt # install all requirement packages
+   ```
+
+3. **Start frontend app**:
+   ```bash
+   npm run dev
+   ```
+4. **Start backend app**:
+   ```bash
+   cd server
+   source venv/bin/activate # Activate the virtual environment
+   python3 server.py
    ```
