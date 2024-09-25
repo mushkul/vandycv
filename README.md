@@ -34,8 +34,8 @@ VandyCV solves this issue by offering major-specific resume templates, an intuit
 
 ## Technologies
 
-- **Frontend**: React.js with Tailwind CSS for easy styling.
-- **Backend**: Node.js with Express for server-side logic.
+- **Frontend**: Next.js with Tailwind CSS for easy styling.
+- **Backend**: Flask for server-side logic.
 - **Database**: PostgreSQL for storing user information and resume data.
 - **AI Integration**: GPT API for generating professional descriptions.
 - **Authentication**: Vanderbilt email authentication with potential Firebase integration.
