@@ -1,16 +1,6 @@
-from flask import Flask, jsonify
-from flask_cors import CORS
-# app instance
-app = Flask(__name__)
-CORS(app)
+from app import create_app
 
-
-@app.route('/api/home/', methods=['GET'])
-def return_home():
-    return jsonify({
-        'message': 'Hello world!',
-        'people': ['Luka', 'Adam', 'Stanley']
-    })
+app = create_app()
 
 
 if __name__ == '__main__':
