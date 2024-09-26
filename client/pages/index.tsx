@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react'
-
 function index() {
   const [message, setMessage] = useState("Loading");
   const [people, setpeople] = useState([]);
