@@ -61,11 +61,19 @@ VandyCV solves this issue by offering major-specific resume templates, an intuit
    pip install -r requirements.txt # install all requirement packages
    ```
 
-3. **Start frontend app**:
+3. **Install PostgreSQL**
+
+- **macOS**:
+  ```bash
+  brew install postgresql
+  ```
+- **Linux/Windows**: Follow the [PostgreSQL installation guide](https://www.postgresql.org/download/).
+
+5. **Start frontend app**:
    ```bash
    npm run dev
    ```
-4. **Start backend app**:
+6. **Start backend app**:
    ```bash
    cd server
    source venv/bin/activate # Activate the virtual environment
