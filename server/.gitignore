@@ -1,1 +1,14 @@
+# Ignore Python cache and virtual environment files
+__pycache__/
+*.py[cod]
+*.pyo
+env/
 venv/
+
+# Ignore environment variables and private keys
+.env
+vandy-cv-firebase-admin-private-key.json
+
+# Ignore IDE-specific files (optional)
+.vscode/
+.idea/

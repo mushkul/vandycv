@@ -1,6 +1,7 @@
 // pages/signup.tsx
 import { useState, FormEvent } from 'react';
-import axios from 'axios';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../firebase';
 import Link from 'next/link';
 
 interface SignupFormState {
@@ -21,18 +22,16 @@ const Signup = () => {
 
     const handleSignup = async (e: FormEvent) => {
         e.preventDefault();
+        setError(''); // Clear previous errors
         try {
-            const response = await axios.post('http://localhost:5000/signup', formData);
-            if (response.data.success) {
-                alert('Signup Successful!');
-                // Redirect to login page or dashboard
-            } else {
-                setError(response.data.message);
-            }
-        } catch (err) {
-            setError('Signup failed. Please try again.');
+          const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
+          console.log(userCredential.user); // You can handle this user object as needed
+          alert('Signup Successful!');
+          // Redirect to login page or dashboard
+        } catch (err: any) {
+          setError(err.message); // Display the error message
         }
-    };
+      };
 
     return (
         <div className="flex justify-center items-center h-screen bg-gradient-to-r from-yellow-50 to-yellow-100">

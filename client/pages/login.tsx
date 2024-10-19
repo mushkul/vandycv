@@ -1,6 +1,8 @@
 // pages/login.tsx
 import { useState, FormEvent } from 'react';
-import axios from 'axios'; // if using axios
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../firebase';
+import axios from 'axios';
 
 // TypeScript interface for form state
 interface LoginFormState {
@@ -24,15 +26,26 @@ const Login = () => {
   // Handle form submission
   const handleLogin = async (e: FormEvent) => {
     e.preventDefault();
+    setError(''); // Clear any existing errors
     try {
-      const response = await axios.post('http://localhost:5000/login', formData);
+      // Log in the user via Firebase
+      const userCredential = await signInWithEmailAndPassword(auth, formData.email, formData.password);
+
+      // Get the Firebase ID token from the signed-in user
+      const token = await userCredential.user.getIdToken();
+
+      // Send the Firebase token to the Flask backend
+      const response = await axios.post('http://localhost:8080/auth/login', {
+        token: token,  // Send the token in the request body
+      });
+
       if (response.data.success) {
-        // Handle successful login (e.g., redirect to a dashboard)
         alert('Login Successful!');
+        // Handle successful login (e.g., redirect to dashboard)
       } else {
         setError(response.data.message);
       }
-    } catch (err) {
+    } catch (err: any) {
       setError('Login failed. Please check your credentials.');
     }
   };
