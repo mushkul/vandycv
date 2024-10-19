@@ -66,6 +66,8 @@ VandyCV solves this issue by offering major-specific resume templates, an intuit
 - **macOS**:
   ```bash
   brew install postgresql
+  brew services restart postgresql
+  psql postgres
   ```
 - **Linux/Windows**: Follow the [PostgreSQL installation guide](https://www.postgresql.org/download/).
 
