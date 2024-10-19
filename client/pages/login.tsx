@@ -1,6 +1,7 @@
 // pages/login.tsx
 import { useState, FormEvent } from 'react';
 import { signInWithEmailAndPassword } from 'firebase/auth';
+import { useRouter } from 'next/router';  // Import the useRouter hook
 import { auth } from '../firebase';
 import axios from 'axios';
 
@@ -14,6 +15,8 @@ const Login = () => {
   // Form state management
   const [formData, setFormData] = useState<LoginFormState>({ email: '', password: '' });
   const [error, setError] = useState<string>('');
+  const router = useRouter(); // Initialize the useRouter hook for navigation
+
 
   // Form input change handler
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -42,6 +45,7 @@ const Login = () => {
       if (response.data.success) {
         alert('Login Successful!');
         // Handle successful login (e.g., redirect to dashboard)
+        router.push("/resume");
       } else {
         setError(response.data.message);
       }
