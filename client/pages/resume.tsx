@@ -1,5 +1,6 @@
 import ResumeQuestionnaire from '../components/ResumeQuestionnaire';
 import Navbar from '../components/Navbar';
+import ProtectedRoute from '../components/ProtectedRoute';
 
 const ResumePage = () => {
     return (
@@ -10,4 +11,4 @@ const ResumePage = () => {
     );
 };
 
-export default ResumePage;
+export default ProtectedRoute(ResumePage);

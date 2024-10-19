@@ -31,7 +31,23 @@ const Signup = () => {
           alert('Signup Successful!');
           router.push('/resume')
         } catch (err: any) {
-          setError(err.message); // Display the error message
+            // Handle Firebase errors
+            switch (err.code) {
+                case 'auth/email-already-in-use':
+                    setError('The email address is already in use. Please use a different email.');
+                    break;
+                case 'auth/invalid-email':
+                    setError('The email address is invalid. Please enter a valid email.');
+                    break;
+                case 'auth/weak-password':
+                    setError('The password is too weak. Please enter a stronger password (at least 6 characters).');
+                    break;
+                case 'auth/operation-not-allowed':
+                    setError('Sign up with email and password is not enabled.');
+                    break;
+                default:
+                    setError('Failed to create an account. Please try again.');
+            }
         }
       };
 
