@@ -1,9 +1,22 @@
 // components/Navbar.tsx
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { signOut } from 'firebase/auth';
+import { auth } from '../firebase'; // Import Firebase auth instance
 
 const Navbar = () => {
     const router = useRouter();
+
+    const handleLogout = async () => {
+        try {
+          await signOut(auth);
+          alert('You have successfully logged out!');
+          router.push('/login'); // Redirect the user to the login page after logout
+        } catch (error) {
+          console.error('Error logging out: ', error);
+        }
+      };
+    
 
     return (
         <nav className="bg-white shadow-md">
@@ -29,6 +42,12 @@ const Navbar = () => {
                                 Resume
                             </Link>
                         </div>
+                    </div>
+                    <div>
+                        {/* Add logout button here */}
+                        <button onClick={handleLogout} className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
+                        Logout
+                        </button>
                     </div>
                 </div>
             </div>
