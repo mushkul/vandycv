@@ -2,6 +2,7 @@
 import { useState, FormEvent } from 'react';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebase';
+import { useRouter } from 'next/router';  // Import the useRouter hook
 import Link from 'next/link';
 
 interface SignupFormState {
@@ -12,6 +13,7 @@ interface SignupFormState {
 const Signup = () => {
     const [formData, setFormData] = useState<SignupFormState>({ email: '', password: '' });
     const [error, setError] = useState<string>('');
+    const router = useRouter(); // Initialize the useRouter hook for navigation
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFormData({
@@ -27,7 +29,7 @@ const Signup = () => {
           const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
           console.log(userCredential.user); // You can handle this user object as needed
           alert('Signup Successful!');
-          // Redirect to login page or dashboard
+          router.push('/resume')
         } catch (err: any) {
           setError(err.message); // Display the error message
         }
