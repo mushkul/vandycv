@@ -11,7 +11,7 @@ const Navbar = () => {
         try {
           await signOut(auth);
           alert('You have successfully logged out!');
-          router.push('/login'); // Redirect the user to the login page after logout
+          router.push('/home'); // Redirect the user to the login page after logout
         } catch (error) {
           console.error('Error logging out: ', error);
         }

@@ -16,6 +16,7 @@ const ProtectedRoute = (Component: React.ComponentType) => {
           setIsAuthenticated(true);  // User is logged in
         } else {
           setIsAuthenticated(false);  // User is not logged in
+          alert('Log In Required!')
           router.push('/login');  // Redirect to login if not authenticated
         }
         setLoading(false);  // Stop the loading indicator once the auth status is determined
