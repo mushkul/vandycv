@@ -8,6 +8,7 @@ venv/
 # Ignore environment variables and private keys
 .env
 vandy-cv-firebase-admin-private-key.json
+vandy-cv-openai-key.json
 
 # Ignore IDE-specific files (optional)
 .vscode/
