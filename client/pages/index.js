@@ -27,7 +27,7 @@ export default function Home() {
     e.preventDefault();
     setError('');
     try {
-      const response = await fetch('http://localhost:5000/generate-resume', {
+      const response = await fetch('http://localhost:8080/generate-resume', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
