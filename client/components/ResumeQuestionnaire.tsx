@@ -1,6 +1,42 @@
-import React, { useState } from 'react';
+// ResumeQuestionnaire.tsx
 
-const JobExperienceForm = ({ experience, index, onChange }) => (
+import React, { useState } from 'react';
+import ReactMarkdown from 'react-markdown'; // For rendering Markdown-formatted resume
+
+// Define interfaces for TypeScript
+interface JobExperience {
+    name: string;
+    title: string;
+    location: string;
+    description: string;
+}
+
+interface FormData {
+    firstName: string;
+    lastName: string;
+    middleInitial?: string;
+    address?: string;
+    email: string;
+    contactNumber: string;
+    linkedinLink?: string;
+    githubLink?: string;
+    college: string;
+    majorConcentration: string;
+    secondMajor?: string;
+    gpa?: string;
+    locationOfCollege: string;
+    startYear: string;
+    endYear: string;
+    relevantCoursework?: string;
+    jobExperiences: JobExperience[];
+}
+
+// JobExperienceForm component remains the same
+const JobExperienceForm: React.FC<{
+    experience: JobExperience;
+    index: number;
+    onChange: (index: number, field: string, value: string) => void;
+}> = ({ experience, index, onChange }) => (
     <section key={index}>
         <h2 className="text-xl font-semibold mb-4">Job Experience #{index + 1}</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -38,23 +74,23 @@ const JobExperienceForm = ({ experience, index, onChange }) => (
                 />
             </div>
             <div className="col-span-2">
-                <label className="block mb-1"> Short Description of what you did: *</label>
+                <label className="block mb-1">Short Description of what you did: *</label>
                 <textarea
                     name="description"
                     value={experience.description}
                     onChange={(e) => onChange(index, 'description', e.target.value)}
                     required
                     className="w-full p-2 border rounded bg-amber-50"
-                    rows="4"
+                    rows={4}
                 ></textarea>
             </div>
         </div>
     </section>
 );
 
-
-const ResumeQuestionnaire = () => {
-    const [formData, setFormData] = useState({
+const ResumeQuestionnaire: React.FC = () => {
+    // Initial state for form data
+    const [formData, setFormData] = useState<FormData>({
         firstName: '',
         lastName: '',
         middleInitial: '',
@@ -71,55 +107,110 @@ const ResumeQuestionnaire = () => {
         startYear: '',
         endYear: '',
         relevantCoursework: '',
-        jobExperienceName: '',
-        jobExperienceTitle: '',
-        jobExperienceLocation: '',
-        jobExperienceDescription: '',
-        jobExperiences: [
-            { name: '', title: '', location: '', description: '' }
-        ]
+        jobExperiences: [{ name: '', title: '', location: '', description: '' }],
     });
 
-    const handleChange = (e) => {
+    // State variables for resume text, loading, and error handling
+    //const [resumeText, setResumeText] = useState<string>(''); // For storing generated resume
+    const [generatedText, setGeneratedText] = useState<string>(''); // For storing generated text
+    const [loading, setLoading] = useState<boolean>(false); // For loading state
+    const [error, setError] = useState<string>(''); // For error messages
+
+    const handleChange = (
+        e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    ) => {
         const { name, value } = e.target;
-        setFormData(prevState => ({
+        setFormData((prevState) => ({
             ...prevState,
-            [name]: value
+            [name]: value,
         }));
     };
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        console.log(formData);
-        // Here you would typically send the data to your backend
-    };
-
-    const handleJobExperienceChange = (index, field, value) => {
-        setFormData(prevState => {
+    const handleJobExperienceChange = (
+        index: number,
+        field: string,
+        value: string
+    ) => {
+        setFormData((prevState) => {
             const updatedExperiences = [...prevState.jobExperiences];
-            updatedExperiences[index] = { ...updatedExperiences[index], [field]: value };
+            updatedExperiences[index] = {
+                ...updatedExperiences[index],
+                [field]: value,
+            };
             return { ...prevState, jobExperiences: updatedExperiences };
         });
     };
 
     const addJobExperience = () => {
         if (formData.jobExperiences.length < 4) {
-            setFormData(prevState => ({
+            setFormData((prevState) => ({
                 ...prevState,
-                jobExperiences: [...prevState.jobExperiences, { name: '', title: '', location: '', description: '' }]
+                jobExperiences: [
+                    ...prevState.jobExperiences,
+                    { name: '', title: '', location: '', description: '' },
+                ],
             }));
+        }
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setLoading(true);
+        setError('');
+        setGeneratedText(''); // Clear any previous text
+
+        // Basic validation (optional)
+        if (
+            !formData.firstName ||
+            !formData.lastName ||
+            !formData.email ||
+            !formData.contactNumber
+        ) {
+            setError('Please fill in all required fields.');
+            setLoading(false);
+            return;
+        }
+
+        try {
+            const response = await fetch('http://localhost:5000/generate-resume', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Server Error');
+            }
+
+            const data = await response.json();
+
+            if (data.generatedText) {
+                setGeneratedText(data.generatedText); // Set the generated text in local state
+            } else {
+                setError('Failed to generate text.');
+            }
+        } catch (err) {
+            console.error(err);
+            setError('An error occurred while generating the text.');
+        } finally {
+            setLoading(false);
         }
     };
 
     return (
         <div className="max-w-4xl mx-auto p-6 bg-amber-100 rounded-lg shadow-lg">
-            <h1 className="text-3xl font-bold mb-6 text-center bg-amber-300 py-2 rounded">Resume Survey</h1>
+            <h1 className="text-3xl font-bold mb-6 text-center bg-amber-300 py-2 rounded">
+                Resume Survey
+            </h1>
             <p className="text-right mb-4 text-sm">Questions marked with * are required</p>
 
             <form onSubmit={handleSubmit} className="space-y-6">
+                {/* Personal Information Section */}
                 <section>
                     <h2 className="text-xl font-semibold mb-4">Personal Information</h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {/* First Name */}
                         <div>
                             <label className="block mb-1">First name: *</label>
                             <input
@@ -131,6 +222,7 @@ const ResumeQuestionnaire = () => {
                                 className="w-full p-2 border rounded bg-amber-50"
                             />
                         </div>
+                        {/* Last Name */}
                         <div>
                             <label className="block mb-1">Last name: *</label>
                             <input
@@ -142,6 +234,7 @@ const ResumeQuestionnaire = () => {
                                 className="w-full p-2 border rounded bg-amber-50"
                             />
                         </div>
+                        {/* Middle Initial */}
                         <div>
                             <label className="block mb-1">Middle Initial:</label>
                             <input
@@ -149,10 +242,11 @@ const ResumeQuestionnaire = () => {
                                 name="middleInitial"
                                 value={formData.middleInitial}
                                 onChange={handleChange}
-                                maxLength="1"
+                                maxLength={1}
                                 className="w-full p-2 border rounded bg-amber-50"
                             />
                         </div>
+                        {/* Address */}
                         <div>
                             <label className="block mb-1">Address:</label>
                             <input
@@ -163,6 +257,7 @@ const ResumeQuestionnaire = () => {
                                 className="w-full p-2 border rounded bg-amber-50"
                             />
                         </div>
+                        {/* Email */}
                         <div>
                             <label className="block mb-1">Email: *</label>
                             <input
@@ -174,6 +269,7 @@ const ResumeQuestionnaire = () => {
                                 className="w-full p-2 border rounded bg-amber-50"
                             />
                         </div>
+                        {/* Contact Number */}
                         <div>
                             <label className="block mb-1">Contact Number: *</label>
                             <input
@@ -185,6 +281,7 @@ const ResumeQuestionnaire = () => {
                                 className="w-full p-2 border rounded bg-amber-50"
                             />
                         </div>
+                        {/* LinkedIn Link */}
                         <div>
                             <label className="block mb-1">LinkedIn Link:</label>
                             <input
@@ -195,8 +292,9 @@ const ResumeQuestionnaire = () => {
                                 className="w-full p-2 border rounded bg-amber-50"
                             />
                         </div>
+                        {/* GitHub Link */}
                         <div>
-                            <label className="block mb-1">Github Link:</label>
+                            <label className="block mb-1">GitHub Link:</label>
                             <input
                                 type="url"
                                 name="githubLink"
@@ -208,9 +306,11 @@ const ResumeQuestionnaire = () => {
                     </div>
                 </section>
 
+                {/* Education Section */}
                 <section>
                     <h2 className="text-xl font-semibold mb-4">Education</h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {/* College */}
                         <div>
                             <label className="block mb-1">College: *</label>
                             <input
@@ -222,6 +322,7 @@ const ResumeQuestionnaire = () => {
                                 className="w-full p-2 border rounded bg-amber-50"
                             />
                         </div>
+                        {/* Major/Concentration */}
                         <div>
                             <label className="block mb-1">Major/Concentration: *</label>
                             <input
@@ -233,6 +334,7 @@ const ResumeQuestionnaire = () => {
                                 className="w-full p-2 border rounded bg-amber-50"
                             />
                         </div>
+                        {/* Second Major */}
                         <div>
                             <label className="block mb-1">Second Major:</label>
                             <input
@@ -243,6 +345,7 @@ const ResumeQuestionnaire = () => {
                                 className="w-full p-2 border rounded bg-amber-50"
                             />
                         </div>
+                        {/* GPA */}
                         <div>
                             <label className="block mb-1">GPA:</label>
                             <input
@@ -253,6 +356,7 @@ const ResumeQuestionnaire = () => {
                                 className="w-full p-2 border rounded bg-amber-50"
                             />
                         </div>
+                        {/* Location of College */}
                         <div>
                             <label className="block mb-1">Location of College: *</label>
                             <input
@@ -264,6 +368,7 @@ const ResumeQuestionnaire = () => {
                                 className="w-full p-2 border rounded bg-amber-50"
                             />
                         </div>
+                        {/* Start and End Year */}
                         <div className="flex gap-4">
                             <div className="flex-1">
                                 <label className="block mb-1">Start Year: *</label>
@@ -288,6 +393,7 @@ const ResumeQuestionnaire = () => {
                                 />
                             </div>
                         </div>
+                        {/* Relevant Coursework */}
                         <div className="col-span-2">
                             <label className="block mb-1">Relevant Coursework:</label>
                             <textarea
@@ -295,12 +401,13 @@ const ResumeQuestionnaire = () => {
                                 value={formData.relevantCoursework}
                                 onChange={handleChange}
                                 className="w-full p-2 border rounded bg-amber-50"
-                                rows="3"
+                                rows={3}
                             ></textarea>
                         </div>
                     </div>
                 </section>
 
+                {/* Job Experience Section */}
                 <section>
                     {formData.jobExperiences.map((experience, index) => (
                         <JobExperienceForm
@@ -324,12 +431,28 @@ const ResumeQuestionnaire = () => {
                     )}
                 </section>
 
+                {/* Submit Button */}
                 <div className="text-center">
-                    <button type="submit" className="bg-amber-500 text-white px-6 py-2 rounded hover:bg-amber-600 transition-colors">
+                    <button
+                        type="submit"
+                        className="bg-amber-500 text-white px-6 py-2 rounded hover:bg-amber-600 transition-colors"
+                    >
                         Submit
                     </button>
                 </div>
             </form>
+
+            {/* Display loading, error, and generated resume */}
+            {loading && <p className="text-center mt-6">Generating your resume...</p>}
+            {error && <p className="text-center text-red-500 mt-6">{error}</p>}
+            {generatedText && (
+                <section className="mt-6">
+                    <h2 className="text-2xl font-semibold mb-4">Generated Text for Your Resume:</h2>
+                    <div className="bg-white p-4 rounded shadow overflow-x-auto">
+                        <pre>{generatedText}</pre>
+                    </div>
+                </section>
+            )}
         </div>
     );
 };
