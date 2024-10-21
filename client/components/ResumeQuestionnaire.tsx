@@ -172,30 +172,35 @@ const ResumeQuestionnaire: React.FC = () => {
         }
 
         try {
-            const response = await fetch('http://localhost:5000/generate-resume', {
+            const response = await fetch('http://localhost:8080/generate-resume', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData),
             });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || 'Server Error');
+        
+            let data;
+            try {
+                data = await response.json();
+            } catch (jsonError) {
+                throw new Error('Invalid JSON response');
             }
-
-            const data = await response.json();
-
+        
+            if (!response.ok) {
+                throw new Error(data.error || 'Server Error');
+            }
+        
             if (data.generatedText) {
-                setGeneratedText(data.generatedText); // Set the generated text in local state
+                setGeneratedText(data.generatedText);
             } else {
                 setError('Failed to generate text.');
             }
         } catch (err) {
             console.error(err);
-            setError('An error occurred while generating the text.');
+            setError(`An error occurred while generating the text: ${err.message || err}`);
         } finally {
             setLoading(false);
         }
+        
     };
 
     return (

@@ -2,22 +2,10 @@
 
 from flask import Blueprint, request, jsonify, current_app
 import openai
+#from openai.error import OpenAIError
 
 resume_bp = Blueprint('resume', __name__)
 
-@resume_bp.route('/generate-resume', methods=['POST'])
-def generate_resume():
-    user_data = request.get_json()
-    prompt = create_prompt(user_data)
-    try:
-        generated_text = generate_resume_text(prompt)
-        return jsonify({'generatedText': generated_text})
-    except openai.error.OpenAIError as e:
-        current_app.logger.error(f'OpenAI API error: {e}')
-        return jsonify({'error': 'Failed to generate text due to an API error.'}), 500
-    except Exception as e:
-        current_app.logger.error(f'Unexpected error: {e}')
-        return jsonify({'error': 'An unexpected error occurred.'}), 500
 
 def create_prompt(user_data):
     # Extract user data
@@ -103,13 +91,29 @@ def create_prompt(user_data):
 
 
 def generate_resume_text(prompt):
-    response = openai.Completion.create(
-        engine='text-davinci-003',
-        prompt=prompt,
-        max_tokens=1000,
-        temperature=0.7,
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",  # or another available model
+        messages=[
+            {"role": "system", "content": "You are a helpful assistant specialized in generating resumes."},
+            {"role": "user", "content": prompt}
+        ],
+        max_tokens=500,
         n=1,
         stop=None,
+        temperature=0.7
     )
-    generated_text = response.choices[0].text.strip()
-    return generated_text
+    return response.choices[0].message['content'].strip()
+
+@resume_bp.route('/generate-resume', methods=['POST'])
+def generate_resume():
+    user_data = request.get_json()
+    prompt = create_prompt(user_data)
+    #try:
+    generated_text = generate_resume_text(prompt)
+    return jsonify({'generatedText': generated_text})
+    #except openai.error.OpenAIError as e:
+    #    current_app.logger.error(f'OpenAI API error: {e}')
+    #    return jsonify({'error': 'Failed to generate text due to an API error.'}), 500
+    #except Exception as e:
+     #   current_app.logger.error(f'Unexpected error: {e}')
+     #   return jsonify({'error': 'An unexpected error occurred.'}), 500
