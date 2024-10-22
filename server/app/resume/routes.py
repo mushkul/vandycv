@@ -1,14 +1,20 @@
 # app/resume/routes.py
 
 from flask import Blueprint, request, jsonify, current_app
-import openai
+from openai import OpenAI
 #from openai.error import OpenAIError
 
-resume_bp = Blueprint('resume', __name__)
+resume_bp = Blueprint('resume_bp', __name__)
 
+TEST = True
+def test(out: str):
+    print(out)
 
-def create_prompt(user_data):
+def create_prompt(data):
+    print("Started prompt creation")
     # Extract user data
+    import json
+    user_data = json.loads(data['body'])
     first_name = user_data.get('firstName', '')
     middle_initial = user_data.get('middleInitial', '')
     last_name = user_data.get('lastName', '')
@@ -28,6 +34,8 @@ def create_prompt(user_data):
     job_experiences = user_data.get('jobExperiences', [])
 
     # Build the prompt
+    # print("\n\n", "name:", first_name, "\n\n\n")
+    # exit(0)
     prompt = f"""
     You are a professional resume writer. Based on the following user information, generate the content for a professional resume. Provide:\n
     1. A compelling professional summary highlighting the user's qualifications, skills, and career objectives.\n
@@ -91,25 +99,41 @@ def create_prompt(user_data):
 
 
 def generate_resume_text(prompt):
-    response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",  # or another available model
-        messages=[
-            {"role": "system", "content": "You are a helpful assistant specialized in generating resumes."},
-            {"role": "user", "content": prompt}
-        ],
-        max_tokens=500,
-        n=1,
-        stop=None,
-        temperature=0.7
-    )
-    return response.choices[0].message['content'].strip()
+    if not TEST:
+        print("GENERATED2")
 
-@resume_bp.route('/generate-resume', methods=['POST'])
+        client = OpenAI()
+        response = client.chat.completions.create(
+            model="gpt-3.5-turbo",  # or another available model
+            messages=[
+                {"role": "system", "content": "You are a helpful assistant specialized in generating resumes."},
+                {"role": "user", "content": prompt}
+            ]
+            # , key = openai.key
+        )
+        print("GENERATED3")
+        print("Response", response)
+        return response.choices[0].message.content.strip()
+    else:
+        return "It is Adam from Vanderbilt. 4.0 GPA and amazing work experience.\nExperience #1\nExperience #2\n"
+
+@resume_bp.route('/generateresume/', methods=['POST'])
 def generate_resume():
+    # return jsonify({
+    #     'message': 'Hello world!',
+    #     'people': ['Luka', 'Adam', 'Stanley']
+    # })
+    print("GEnerate")
+    # return jsonify({"ho":3})
+    print("GENERATE1")
+    print("request", request)
     user_data = request.get_json()
+    print("user data", user_data)
     prompt = create_prompt(user_data)
+    print("Prompt created")
     #try:
     generated_text = generate_resume_text(prompt)
+    print("GENERATED:", generated_text)
     return jsonify({'generatedText': generated_text})
     #except openai.error.OpenAIError as e:
     #    current_app.logger.error(f'OpenAI API error: {e}')
