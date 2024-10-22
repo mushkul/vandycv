@@ -174,7 +174,7 @@ const ResumeQuestionnaire: React.FC = () => {
 
         try {
             console.log("0");
-            
+
             //const response = await axios.get('http://localhost:8080/home', {});
             const response = await axios.post('http://localhost:8080/generateresume/', {
                 method: 'POST',
@@ -193,7 +193,7 @@ const ResumeQuestionnaire: React.FC = () => {
             } catch (jsonError) {
                 throw new Error('Invalid JSON response');
             }
-            
+
             console.log("3");
 
         } catch (err) {
@@ -204,7 +204,7 @@ const ResumeQuestionnaire: React.FC = () => {
         } finally {
             setLoading(false);
         }
-        
+
     };
 
     return (

@@ -2,13 +2,16 @@
 
 from flask import Blueprint, request, jsonify, current_app
 from openai import OpenAI
-#from openai.error import OpenAIError
+# from openai.error import OpenAIError
 
 resume_bp = Blueprint('resume_bp', __name__)
 
-TEST = True
+TEST = False
+
+
 def test(out: str):
     print(out)
+
 
 def create_prompt(data):
     print("Started prompt creation")
@@ -47,7 +50,7 @@ def create_prompt(data):
     - **Address:** {address}\n
     - **Email:** {email}\n
     - **Contact Number:** {contact_number}\n"""
-    
+
     if linkedin_link:
         prompt += f"- **LinkedIn:** {linkedin_link}\n"
     if github_link:
@@ -56,7 +59,7 @@ def create_prompt(data):
     prompt += f"""**Education:**\n
     - **College:** {college}\n
     - **Major/Concentration:** {major_concentration}\n"""
-    
+
     if second_major:
         prompt += f"- **Second Major:** {second_major}\n"
     if gpa:
@@ -117,6 +120,7 @@ def generate_resume_text(prompt):
     else:
         return "It is Adam from Vanderbilt. 4.0 GPA and amazing work experience.\nExperience #1\nExperience #2\n"
 
+
 @resume_bp.route('/generateresume/', methods=['POST'])
 def generate_resume():
     # return jsonify({
@@ -131,13 +135,13 @@ def generate_resume():
     print("user data", user_data)
     prompt = create_prompt(user_data)
     print("Prompt created")
-    #try:
+    # try:
     generated_text = generate_resume_text(prompt)
     print("GENERATED:", generated_text)
     return jsonify({'generatedText': generated_text})
-    #except openai.error.OpenAIError as e:
+    # except openai.error.OpenAIError as e:
     #    current_app.logger.error(f'OpenAI API error: {e}')
     #    return jsonify({'error': 'Failed to generate text due to an API error.'}), 500
-    #except Exception as e:
-     #   current_app.logger.error(f'Unexpected error: {e}')
-     #   return jsonify({'error': 'An unexpected error occurred.'}), 500
+    # except Exception as e:
+    #   current_app.logger.error(f'Unexpected error: {e}')
+    #   return jsonify({'error': 'An unexpected error occurred.'}), 500

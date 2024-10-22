@@ -39,7 +39,6 @@ def login():
         cursor.execute('SELECT uid FROM users WHERE uid = %s;', (uid,))
         user_exists = cursor.fetchone()
         print(user_exists)
-        
 
         if user_exists:
             # User exists, return a success response
