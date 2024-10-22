@@ -173,8 +173,6 @@ const ResumeQuestionnaire: React.FC = () => {
         }
 
         try {
-            console.log("0");
-
             //const response = await axios.get('http://localhost:8080/home', {});
             const response = await axios.post('http://localhost:8080/generateresume/', {
                 method: 'POST',
@@ -182,11 +180,9 @@ const ResumeQuestionnaire: React.FC = () => {
                 body: JSON.stringify(formData)
             });
 
-            console.log("1");
             console.log(response);
             let data;
             try {
-                console.log("2");
                 data = await response.data;
                 console.log(typeof data);
 
@@ -194,10 +190,8 @@ const ResumeQuestionnaire: React.FC = () => {
                 throw new Error('Invalid JSON response');
             }
 
-            console.log("3");
 
         } catch (err) {
-            console.log("4");
 
             console.error(err);
             setError(`An error occurred while generating the text: ${err.message || err}`);
