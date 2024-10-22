@@ -45,7 +45,7 @@ const Login = () => {
       if (response.data.success) {
         alert('Login Successful!');
         // Handle successful login (e.g., redirect to dashboard)
-        router.push("/resume");
+        router.push("/dashboard");
       } else {
         setError(response.data.message);
       }

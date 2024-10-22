@@ -29,7 +29,7 @@ const Signup = () => {
           const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
           console.log(userCredential.user); // You can handle this user object as needed
           alert('Signup Successful!');
-          router.push('/resume')
+          router.push('/dashboard')
         } catch (err: any) {
             // Handle Firebase errors
             switch (err.code) {

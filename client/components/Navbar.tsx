@@ -1,22 +1,44 @@
-// components/Navbar.tsx
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { signOut } from 'firebase/auth';
+import { signOut, onAuthStateChanged } from 'firebase/auth';
+import { useEffect, useState } from 'react';
 import { auth } from '../firebase'; // Import Firebase auth instance
 
 const Navbar = () => {
+    const [isLoggedIn, setIsLoggedIn] = useState(false); // State to check if user is logged in
     const router = useRouter();
+
+    // Check if user is logged in when component mounts
+    useEffect(() => {
+        const unsubscribe = onAuthStateChanged(auth, (user) => {
+            if (user) {
+                setIsLoggedIn(true);  // User is logged in
+            } else {
+                setIsLoggedIn(false); // User is not logged in
+            }
+        });
+
+        return () => unsubscribe(); // Clean up the observer on unmount
+    }, []);
 
     const handleLogout = async () => {
         try {
           await signOut(auth);
           alert('You have successfully logged out!');
-          router.push('/home'); // Redirect the user to the login page after logout
+          router.push('/home'); // Redirect to the home page after logout
         } catch (error) {
           console.error('Error logging out: ', error);
         }
-      };
-    
+    };
+
+    const handleHomeClick = (e) => {
+        e.preventDefault();
+        if (isLoggedIn) {
+            router.push('/dashboard'); // Redirect to dashboard if logged in
+        } else {
+            router.push('/home'); // Redirect to home page if not logged in
+        }
+    };
 
     return (
         <nav className="bg-white shadow-md">
@@ -27,13 +49,15 @@ const Navbar = () => {
                             <span className="text-xl font-bold text-gray-800">VandyCV</span>
                         </Link>
                         <div className="hidden md:flex items-center space-x-4">
-                            <Link
-                                href="/"
+                            {/* Home link with conditional routing */}
+                            <a
+                                href="#"
+                                onClick={handleHomeClick}
                                 className={`text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium ${router.pathname === '/' ? 'text-gray-900 bg-gray-100' : ''
                                     }`}
                             >
                                 Home
-                            </Link>
+                            </a>
                             <Link
                                 href="/resume"
                                 className={`text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium ${router.pathname === '/resume' ? 'text-gray-900 bg-gray-100' : ''
@@ -44,10 +68,16 @@ const Navbar = () => {
                         </div>
                     </div>
                     <div>
-                        {/* Add logout button here */}
-                        <button onClick={handleLogout} className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
-                        Logout
-                        </button>
+                        {/* Conditional rendering for the Logout button if the user is logged in */}
+                        {isLoggedIn ? (
+                            <button onClick={handleLogout} className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
+                                Logout
+                            </button>
+                        ) : (
+                            <Link href="/login" className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
+                                Login
+                            </Link>
+                        )}
                     </div>
                 </div>
             </div>
