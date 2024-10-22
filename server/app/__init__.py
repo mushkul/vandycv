@@ -3,13 +3,15 @@ from flask import Flask, jsonify
 from flask_cors import CORS
 import firebase_admin
 from firebase_admin import credentials
+from openai import OpenAI
 import json
 import openai
 import os
 
 def create_app():
     app = Flask(__name__)
-    CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}}) 
+    CORS(app)
+    # CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}}) 
 
     # Load the API key from vandy-cv-openai-key.json
     config_path = os.path.join(app.root_path, '..', 'vandy-cv-openai-key.json')
@@ -20,12 +22,15 @@ def create_app():
     except FileNotFoundError:
         raise FileNotFoundError("Configuration file 'vandy-cv-openai-key.json' not found.")
 
+    print("\n\n\n", openai_api_key, "\n\n\n")
     # Ensure the API key is available
     if not openai_api_key:
         raise ValueError("OpenAI API key not found in 'cvandy-cv-openai-key.json'.")
 
     # Set the OpenAI API key
-    openai.api_key = openai_api_key
+    os.environ["OPENAI_API_KEY"] = openai_api_key
+
+    # openai.api_key = openai_api_key
     
     # Initialize Firebase Admin SDK
     cred = credentials.Certificate('vandy-cv-firebase-admin-private-key.json')

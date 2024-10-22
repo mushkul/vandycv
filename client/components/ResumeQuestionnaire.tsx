@@ -1,5 +1,6 @@
 // ResumeQuestionnaire.tsx
 
+import axios from 'axios';
 import React, { useState } from 'react';
 import ReactMarkdown from 'react-markdown'; // For rendering Markdown-formatted resume
 
@@ -172,29 +173,32 @@ const ResumeQuestionnaire: React.FC = () => {
         }
 
         try {
-            const response = await fetch('http://localhost:8080/generate-resume', {
+            console.log("0");
+            
+            //const response = await axios.get('http://localhost:8080/home', {});
+            const response = await axios.post('http://localhost:8080/generateresume/', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(formData),
+                body: JSON.stringify(formData)
             });
-        
+
+            console.log("1");
+            console.log(response);
             let data;
             try {
-                data = await response.json();
+                console.log("2");
+                data = await response.data;
+                console.log(typeof data);
+
             } catch (jsonError) {
                 throw new Error('Invalid JSON response');
             }
-        
-            if (!response.ok) {
-                throw new Error(data.error || 'Server Error');
-            }
-        
-            if (data.generatedText) {
-                setGeneratedText(data.generatedText);
-            } else {
-                setError('Failed to generate text.');
-            }
+            
+            console.log("3");
+
         } catch (err) {
+            console.log("4");
+
             console.error(err);
             setError(`An error occurred while generating the text: ${err.message || err}`);
         } finally {
