@@ -10,13 +10,12 @@ import os
 
 
 def create_app():
-    application = Flask(__name__)
-    CORS(application)
+    app = Flask(__name__)
+    CORS(app)
     # CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
 
     # Load the API key from vandy-cv-openai-key.json
-    config_path = os.path.join(
-        application.root_path, '..', 'vandy-cv-openai-key.json')
+    config_path = os.path.join(app.root_path, '..', 'vandy-cv-openai-key.json')
     try:
         with open(config_path) as config_file:
             config = json.load(config_file)
@@ -25,7 +24,7 @@ def create_app():
         raise FileNotFoundError(
             "Configuration file 'vandy-cv-openai-key.json' not found.")
 
-    print("\n\n\n", openai_api_key, "\n\n\n")
+    # print("\n\n\n", openai_api_key, "\n\n\n")
     # Ensure the API key is available
     if not openai_api_key:
         raise ValueError(
@@ -45,8 +44,8 @@ def create_app():
     from app.home.routes import home_bp
     from app.resume.routes import resume_bp
 
-    application.register_blueprint(auth_bp, url_prefix='/auth')
-    application.register_blueprint(home_bp)
-    application.register_blueprint(resume_bp)
+    app.register_blueprint(auth_bp, url_prefix='/auth')
+    app.register_blueprint(home_bp)
+    app.register_blueprint(resume_bp)
 
-    return application
+    return app
