@@ -14,6 +14,10 @@ def create_app():
     CORS(app)
     # CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
 
+    @app.route("/")
+    def index():
+        return "Welcome to the Flask API!", 200
+
     # Load the API key from vandy-cv-openai-key.json
     config_path = os.path.join(app.root_path, '..', 'vandy-cv-openai-key.json')
     try:
