@@ -5,7 +5,8 @@ function index() {
 
 
   useEffect(() => {
-    fetch("http://localhost:8080/home").then(
+    const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/home`;
+    fetch(apiUrl).then(
       response => response.json()
     ).then(
       data => {

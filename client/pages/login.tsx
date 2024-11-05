@@ -38,7 +38,8 @@ const Login = () => {
       const token = await userCredential.user.getIdToken();
 
       // Send the Firebase token to the Flask backend
-      const response = await axios.post('http://localhost:8080/auth/login', {
+      const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/auth/login`;
+      const response = await axios.post(apiUrl, {
         token: token,  // Send the token in the request body
       });
 

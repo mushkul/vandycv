@@ -174,7 +174,9 @@ const ResumeQuestionnaire: React.FC = () => {
 
         try {
             //const response = await axios.get('http://localhost:8080/home', {});
-            const response = await axios.post('http://localhost:8080/generateresume/', {
+            const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/generateresume/`;
+
+            const response = await axios.post(apiUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData)
