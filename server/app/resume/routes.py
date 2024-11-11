@@ -2,6 +2,9 @@
 
 from flask import Blueprint, request, jsonify, current_app
 from openai import OpenAI
+from firebase_admin import auth
+from app.db import get_db_connection
+
 # from openai.error import OpenAIError
 
 resume_bp = Blueprint('resume_bp', __name__)
@@ -13,11 +16,8 @@ def test(out: str):
     print(out)
 
 
-def create_prompt(data):
+def create_prompt(user_data):
     print("Started prompt creation")
-    # Extract user data
-    import json
-    user_data = json.loads(data['body'])
     first_name = user_data.get('firstName', '')
     middle_initial = user_data.get('middleInitial', '')
     last_name = user_data.get('lastName', '')
@@ -123,25 +123,127 @@ def generate_resume_text(prompt):
 
 @resume_bp.route('/generateresume/', methods=['POST'])
 def generate_resume():
-    # return jsonify({
-    #     'message': 'Hello world!',
-    #     'people': ['Luka', 'Adam', 'Stanley']
-    # })
-    print("GEnerate")
-    # return jsonify({"ho":3})
-    print("GENERATE1")
-    print("request", request)
-    user_data = request.get_json()
-    print("user data", user_data)
-    prompt = create_prompt(user_data)
-    print("Prompt created")
-    # try:
-    generated_text = generate_resume_text(prompt)
-    print("GENERATED:", generated_text)
-    return jsonify({'generatedText': generated_text})
-    # except openai.error.OpenAIError as e:
-    #    current_app.logger.error(f'OpenAI API error: {e}')
-    #    return jsonify({'error': 'Failed to generate text due to an API error.'}), 500
-    # except Exception as e:
-    #   current_app.logger.error(f'Unexpected error: {e}')
-    #   return jsonify({'error': 'An unexpected error occurred.'}), 500
+    try:
+
+        # Get the ID token from the Authorization header
+        id_token = None
+        auth_header = request.headers.get('Authorization', None)
+        if auth_header:
+            # The header is of the form 'Bearer <token>'
+            id_token = auth_header.split(' ')[1]
+
+        if id_token is None:
+            return jsonify({'error': 'Unauthorized'}), 401
+
+        # Verify the ID token
+        decoded_token = auth.verify_id_token(id_token)
+        uid = decoded_token['uid']
+
+        user_data = request.get_json()
+        print("User data received:", user_data)
+        # Extract user data
+        first_name = user_data.get('firstName', '')
+        last_name = user_data.get('lastName', '')
+        middle_initial = user_data.get('middleInitial', '')
+        address = user_data.get('address', '')
+        email = user_data.get('email', '')
+        contact_number = user_data.get('contactNumber', '')
+        linkedin_link = user_data.get('linkedinLink', '')
+        github_link = user_data.get('githubLink', '')
+        college = user_data.get('college', '')
+        major_concentration = user_data.get('majorConcentration', '')
+        second_major = user_data.get('secondMajor', '')
+        gpa = user_data.get('gpa', '')
+        location_of_college = user_data.get('locationOfCollege', '')
+        start_year = user_data.get('startYear', '')
+        end_year = user_data.get('endYear', '')
+        relevant_coursework = user_data.get('relevantCoursework', '')
+        job_experiences = user_data.get('jobExperiences', [])
+
+
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        try:
+            # Begin transaction
+            conn.autocommit = False
+
+            # Insert into questionnaires
+            insert_questionnaire_query = """
+                INSERT INTO questionnaires (
+                    uid, name, first_name, last_name, middle_initial, address, email, contact_number,
+                    linkedin_link, github_link, college, major_concentration, second_major, gpa,
+                    location_of_college, start_year, end_year, relevant_coursework
+                ) VALUES (
+                    %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
+                ) RETURNING questionnaire_id;
+            """
+
+            insert_questionnaire_values = (
+                uid,
+                'Resume Questionnaire',
+                first_name,
+                last_name,
+                middle_initial,
+                address,
+                email,
+                contact_number,
+                linkedin_link,
+                github_link,
+                college,
+                major_concentration,
+                second_major,
+                gpa,
+                location_of_college,
+                start_year,
+                end_year,
+                relevant_coursework
+            )
+
+            cursor.execute(insert_questionnaire_query, insert_questionnaire_values)
+            questionnaire_id = cursor.fetchone()[0]
+
+            # Insert job experiences
+            insert_experience_query = """
+                INSERT INTO job_experiences (
+                    questionnaire_id, name, title, location, description
+                ) VALUES (
+                    %s, %s, %s, %s, %s
+                );
+            """
+
+            for exp in job_experiences:
+                name = exp.get('name', '')
+                title = exp.get('title', '')
+                location = exp.get('location', '')
+                description = exp.get('description', '')
+
+                cursor.execute(insert_experience_query, (
+                    questionnaire_id,
+                    name,
+                    title,
+                    location,
+                    description
+                ))
+
+            # Commit transaction
+            conn.commit()
+
+        except Exception as e:
+            conn.rollback()
+            current_app.logger.error(f'Database error: {e}')
+            return jsonify({'error': 'Database error occurred'}), 500
+        finally:
+            cursor.close()
+            conn.close()
+
+        # Optionally, generate the resume text
+        prompt = create_prompt(user_data)
+        generated_text = generate_resume_text(prompt)
+
+        # Return the generated text to the frontend
+        return jsonify({'generatedText': generated_text})
+
+    except Exception as e:
+        current_app.logger.error(f'Unexpected error: {e}')
+        return jsonify({'error': 'An unexpected error occurred.'}), 500

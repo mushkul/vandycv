@@ -2,6 +2,7 @@
 
 import axios from 'axios';
 import React, { useState } from 'react';
+import {auth} from '../firebase.js';
 
 // Define interfaces for TypeScript
 interface JobExperience {
@@ -175,22 +176,33 @@ const ResumeQuestionnaire: React.FC = () => {
             //const response = await axios.get('http://localhost:8080/home', {});
             const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/generateresume/`;
 
-            const response = await axios.post(apiUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(formData)
-            });
 
-            console.log(response);
-            let data;
-            try {
-                data = await response.data;
-                console.log(typeof data);
+            const user = auth.currentUser;
+            if (user) {
+                // Get the ID token
+                const idToken = await user.getIdToken();
 
-            } catch (jsonError) {
-                throw new Error('Invalid JSON response');
+                // Make the request with the ID token in the Authorization header
+                const response = await axios.post(apiUrl, formData, {
+                    headers: {
+                        'Authorization': `Bearer ${idToken}`,
+                        'Content-Type': 'application/json',
+                    },
+                });
+
+                const data = response.data;
+                console.log('Response data:', data);
+
+                if (data.generatedText) {
+                    setGeneratedText(data.generatedText);
+                } else if (data.error) {
+                    setError(data.error);
+                }
+            } else {
+                setError('User not authenticated');
+                setLoading(false);
+                return;
             }
-
 
         } catch (err) {
 
