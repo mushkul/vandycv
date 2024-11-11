@@ -81,3 +81,9 @@ VandyCV solves this issue by offering major-specific resume templates, an intuit
    source venv/bin/activate # Activate the virtual environment
    python3 server.py
    ```
+
+# deploy on render
+
+add `vandy-cv-firebase-admin-private-key.json` to render environment files
+add `vandy-cv-openai-key.json` to render environment files
+change render start command to `gunicorn server:app` on the render.com
