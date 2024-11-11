@@ -39,7 +39,7 @@ export default function Home() {
       } else {
         setError(data.error || 'An error occurred.');
       }
-    } catch (err) {
+    } catch {
       setError('Failed to connect to the server.');
     }
   };

@@ -2,7 +2,6 @@
 
 import axios from 'axios';
 import React, { useState } from 'react';
-import ReactMarkdown from 'react-markdown'; // For rendering Markdown-formatted resume
 
 // Define interfaces for TypeScript
 interface JobExperience {
@@ -196,7 +195,9 @@ const ResumeQuestionnaire: React.FC = () => {
         } catch (err) {
 
             console.error(err);
-            setError(`An error occurred while generating the text: ${err.message || err}`);
+            if (err instanceof Error) {
+                setError(`An error occurred while generating the text: ${err.message || err}`);
+            }
         } finally {
             setLoading(false);
         }

@@ -50,7 +50,7 @@ const Login = () => {
       } else {
         setError(response.data.message);
       }
-    } catch (err: any) {
+    } catch {
       setError('Login failed. Please check your credentials.');
     }
   };
@@ -96,7 +96,7 @@ const Login = () => {
           </button>
           <div className="flex justify-center items-center mb-2">
             <label className="block text-sm mr-5">
-              Don't have an account? </label>
+              Don&apos;t have an account? </label>
             <a href="/signup" className="text-sm text-blue-500 hover:text-blue-700">Sign up</a>
           </div>
         </form>

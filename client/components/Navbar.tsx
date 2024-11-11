@@ -23,15 +23,15 @@ const Navbar = () => {
 
     const handleLogout = async () => {
         try {
-          await signOut(auth);
-          alert('You have successfully logged out!');
-          router.push('/home'); // Redirect to the home page after logout
+            await signOut(auth);
+            alert('You have successfully logged out!');
+            router.push('/home'); // Redirect to the home page after logout
         } catch (error) {
-          console.error('Error logging out: ', error);
+            console.error('Error logging out: ', error);
         }
     };
 
-    const handleHomeClick = (e) => {
+    const handleHomeClick = (e: { preventDefault: () => void; }) => {
         e.preventDefault();
         if (isLoggedIn) {
             router.push('/dashboard'); // Redirect to dashboard if logged in
