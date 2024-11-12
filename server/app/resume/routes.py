@@ -1,5 +1,10 @@
 # app/resume/routes.py
 
+import uuid
+import os
+import subprocess
+from dotenv import load_dotenv
+from flask import Flask, request, send_file, render_template_string, redirect, send_from_directory, url_for
 from flask import Blueprint, request, jsonify, current_app
 from openai import OpenAI
 from firebase_admin import auth
@@ -123,6 +128,11 @@ def generate_resume_text(prompt):
 
 @resume_bp.route('/generateresume/', methods=['POST'])
 def generate_resume():
+    with open("cv.tex", 'r') as file:
+        latex_content = file.read()
+    print(latex_content)
+    # return redirect(url_for('resume_bp.generate_pdf', latex_content=latex_content))
+    # return jsonify({'generatedText': "HI"})
     try:
 
         # Get the ID token from the Authorization header
@@ -159,7 +169,6 @@ def generate_resume():
         end_year = user_data.get('endYear', '')
         relevant_coursework = user_data.get('relevantCoursework', '')
         job_experiences = user_data.get('jobExperiences', [])
-
 
         conn = get_db_connection()
         cursor = conn.cursor()
@@ -200,7 +209,8 @@ def generate_resume():
                 relevant_coursework
             )
 
-            cursor.execute(insert_questionnaire_query, insert_questionnaire_values)
+            cursor.execute(insert_questionnaire_query,
+                           insert_questionnaire_values)
             questionnaire_id = cursor.fetchone()[0]
 
             # Insert job experiences
@@ -236,6 +246,8 @@ def generate_resume():
         finally:
             cursor.close()
             conn.close()
+            print("HELLO")
+            return generate_pdf(uid, questionnaire_id, latex_content)
 
         # Optionally, generate the resume text
         prompt = create_prompt(user_data)
@@ -247,3 +259,71 @@ def generate_resume():
     except Exception as e:
         current_app.logger.error(f'Unexpected error: {e}')
         return jsonify({'error': 'An unexpected error occurred.'}), 500
+
+
+# Temporary directory to store PDF files
+TEMP_DIR = os.getenv("PERSISTENT_ADDRESS")
+# os.makedirs(TEMP_DIR, exist_ok=True)
+
+
+# @resume_bp.route('/generate_pdf')
+def generate_pdf(uid, questionnaire_id, latex_content):
+    # latex_content = request.json.get("latex_content")
+    if not latex_content:
+        return {"error": "No LaTeX content provided"}, 400
+
+    pdf_id = f"{uid}_{questionnaire_id}"
+    os.makedirs(TEMP_DIR, exist_ok=True)
+    tex_file_path = os.path.join(TEMP_DIR, f"{pdf_id}.tex")
+    pdf_file_path = os.path.join(TEMP_DIR, f"{pdf_id}.pdf")
+
+    with open(tex_file_path, "w") as tex_file:
+        tex_file.write(latex_content)
+
+    try:
+        subprocess.run(["tectonic", "-o", TEMP_DIR, tex_file_path],
+                       check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    except subprocess.CalledProcessError as e:
+        return {"error": "Failed to generate PDF", "details": e.stderr.decode()}, 500
+
+    return view_pdf(pdf_id)
+# redirect(url_for('view_pdf', pdf_id=pdf_id))
+
+
+# @resume_bp.route('/view_pdf/<pdf_id>')
+def view_pdf(pdf_id):
+    pdf_file_path = os.path.join(TEMP_DIR, f"{pdf_id}.pdf")
+    if not os.path.exists(pdf_file_path):
+        return {"error": "PDF not found"}, 404
+
+    html_content = f"""
+    <!doctype html>
+    <html lang="en">
+      <head>
+        <meta charset="utf-8">
+        <title>View PDF</title>
+      </head>
+      <body>
+        <h1>Generated PDF</h1>
+        <embed src="{url_for('resume_bp.get_pdf', pdf_id=pdf_id)}" type="application/pdf" width="100%" height="100%"/>
+      </body>
+    </html>
+    """
+
+    print(html_content)
+    return redirect(url_for('resume_bp.get_pdf', pdf_id=pdf_id))
+    # return render_template_string(html_content)
+
+
+@resume_bp.route('/pdf/<pdf_id>')
+def get_pdf(pdf_id):
+    pdf_file_path = os.path.join(TEMP_DIR, f"{pdf_id}.pdf")
+    if not os.path.exists(pdf_file_path):
+        return {"error": "PDF not found"}, 404
+
+    return send_file(pdf_file_path, as_attachment=False)
+
+
+@resume_bp.route('/pdfs/<uid>/<questionnaire_id>', methods=['GET'])
+def get_pdf1(uid, questionnaire_id):
+    return send_file(os.path.join(TEMP_DIR, f"{uid}_{questionnaire_id}.pdf"))

@@ -8,8 +8,9 @@ import os
 
 def get_db_connection():
     load_dotenv()  # Load environment variables from .env
+    print("HI")
     DATABASE_URL = os.getenv("DATABASE_URL")
-
+    print("\n\nDATABASE_URL=", DATABASE_URL)
     conn = psycopg2.connect(DATABASE_URL)
 
     # conn = psycopg2.connect(

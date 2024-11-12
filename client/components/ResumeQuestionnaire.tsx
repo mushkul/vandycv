@@ -2,7 +2,7 @@
 
 import axios from 'axios';
 import React, { useState } from 'react';
-import {auth} from '../firebase.js';
+import { auth } from '../firebase.js';
 
 // Define interfaces for TypeScript
 interface JobExperience {
@@ -186,11 +186,60 @@ const ResumeQuestionnaire: React.FC = () => {
                 const response = await axios.post(apiUrl, formData, {
                     headers: {
                         'Authorization': `Bearer ${idToken}`,
-                        'Content-Type': 'application/json',
+                        //     'Content-Type': 'application/json',
                     },
+                    responseType: 'blob'
                 });
 
+
                 const data = response.data;
+                const displayPdf = (pdfBlob: any) => {
+                    // Create a URL for the PDF Blob
+                    const pdfUrl = URL.createObjectURL(pdfBlob);
+
+                    // Open the PDF in a new tab
+                    window.open(pdfUrl, '_blank');
+                };
+
+                displayPdf(data);
+
+
+
+                // console.log("HAHAHA", data)
+                const newWindow = window.open('', '_blank');
+                if (newWindow) {
+                    newWindow.document.open();
+                    newWindow.document.write(response.data); // Write the HTML from response data
+                    newWindow.document.close();
+                    return;
+                } else {
+                    console.error("Failed to open a new window.");
+                    return;
+                }
+
+                // {
+                //     const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/pdfs/fuPCVnWpFGf1IiHgKJsVcURLUda2/26`;
+                //     const response = await axios.get(apiUrl, {
+                //         headers: {
+                //             'Authorization': `Bearer ${idToken}`,
+                //             //     'Content-Type': 'application/json',
+                //         },
+                //         responseType: 'blob'
+                //     });
+                //     displayPdf(response.data);
+                //     const newWindow = window.open('', '_blank');
+                //     if (newWindow) {
+                //         newWindow.document.open();
+                //         newWindow.document.write(response.data); // Write the HTML from response data
+                //         newWindow.document.close();
+                //         return;
+                //     } else {
+                //         console.error("Failed to open a new window.");
+                //         return;
+                //     }
+                // }
+
+
                 console.log('Response data:', data);
 
                 if (data.generatedText) {
