@@ -376,8 +376,8 @@ def get_pdf(pdf_id):
 
 @resume_bp.route('/pdfs/<uid>/<questionnaire_id>', methods=['GET'])
 def get_pdf1(uid, questionnaire_id):
-    load_dotenv()
-    TEMP_DIR = os.getenv("PERSISTENT_ADDRESS")
+    # load_dotenv()
+    # TEMP_DIR = os.getenv("PERSISTENT_ADDRESS")
     return send_file(os.path.join(TEMP_DIR, f"{uid}_{questionnaire_id}.pdf"))
 
 
