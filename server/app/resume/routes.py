@@ -15,6 +15,8 @@ os.environ["PATH"] += os.pathsep + "/opt/render/project/src/server"
 
 # from openai.error import OpenAIError
 
+#for testing purposes
+
 resume_bp = Blueprint('resume_bp', __name__)
 load_dotenv()
 TEMP_DIR = os.getenv("PERSISTENT_ADDRESS")
@@ -461,3 +463,4 @@ def get_resumes():
     except Exception as e:
         current_app.logger.error(f'Error fetching resumes: {e}', exc_info=True)
         return jsonify({'error': 'An error occurred while fetching resumes.'}), 500
+
