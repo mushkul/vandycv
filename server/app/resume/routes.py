@@ -262,6 +262,7 @@ def generate_resume():
 
 
 # Temporary directory to store PDF files
+load_dotenv()
 TEMP_DIR = os.getenv("PERSISTENT_ADDRESS")
 # os.makedirs(TEMP_DIR, exist_ok=True)
 
