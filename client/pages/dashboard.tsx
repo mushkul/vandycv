@@ -5,7 +5,7 @@ import axios from 'axios';
 import Navbar from '../components/Navbar';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import { auth } from '../firebase.js';  // Ensure you have the correct path
-
+import { useRouter } from 'next/router'
 interface Resume {
   questionnaire_id: number;
   name: string;
@@ -75,6 +75,7 @@ const Dashboard = () => {
       setError('An error occurred while fetching the PDF.');
     }
   };
+  const router = useRouter();
 
   return (
     <div className="min-h-screen bg-gradient-to-r from-yellow-50 to-yellow-100">
@@ -87,7 +88,7 @@ const Dashboard = () => {
           <h1 className="text-3xl font-bold text-gray-900">Recent Resumes</h1>
           <button
             className="text-xl text-gray-700 bg-yellow-300 px-4 py-2 rounded hover:bg-yellow-400 transition"
-          //Add functionality of the plus button here
+            onClick={() => router.push('/resume')}
           >
             +
           </button>
