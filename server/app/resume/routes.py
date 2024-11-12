@@ -9,7 +9,7 @@ from flask import Blueprint, request, jsonify, current_app
 from openai import OpenAI
 from firebase_admin import auth
 from app.db import get_db_connection
-
+os.environ["PATH"] += os.pathsep + "/opt/render/project/src/server"
 # from openai.error import OpenAIError
 
 resume_bp = Blueprint('resume_bp', __name__)
