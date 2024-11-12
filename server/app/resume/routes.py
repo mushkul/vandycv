@@ -1,5 +1,6 @@
 # app/resume/routes.py
 
+from jinja2 import Template
 import uuid
 import os
 import subprocess
@@ -10,7 +11,6 @@ from openai import OpenAI
 from firebase_admin import auth
 from app.db import get_db_connection
 os.environ["PATH"] += os.pathsep + "/opt/render/project/src/server"
-from jinja2 import Template
 
 # from openai.error import OpenAIError
 
@@ -22,6 +22,7 @@ TEST = False
 
 def test(out: str):
     print(out)
+
 
 def escape_latex(s):
     if isinstance(s, str):
@@ -37,13 +38,15 @@ def escape_latex(s):
                 .replace('^', r'\^{}')
     return s
 
+
 def escape_user_data(data):
-        if isinstance(data, dict):
-            return {k: escape_user_data(v) for k, v in data.items()}
-        elif isinstance(data, list):
-            return [escape_user_data(item) for item in data]
-        else:
-            return escape_latex(data)
+    if isinstance(data, dict):
+        return {k: escape_user_data(v) for k, v in data.items()}
+    elif isinstance(data, list):
+        return [escape_user_data(item) for item in data]
+    else:
+        return escape_latex(data)
+
 
 def create_prompt(user_data):
     print("Started prompt creation")
@@ -152,7 +155,7 @@ def generate_resume_text(prompt):
 
 @resume_bp.route('/generateresume/', methods=['POST'])
 def generate_resume():
-    
+
     # return redirect(url_for('resume_bp.generate_pdf', latex_content=latex_content))
     # return jsonify({'generatedText': "HI"})
     try:
@@ -270,14 +273,14 @@ def generate_resume():
             conn.close()
             print("HELLO")
             # Read the LaTeX template
-            escaped_user_data = escape_user_data(user_data)
+            # escaped_user_data = escape_user_data(user_data)
             with open("cv.tex", 'r') as file:
                 latex_template = file.read()
-
+            print(latex_template)
             # Render the template with escaped user data
-            template = Template(latex_template)
-            rendered_latex = template.render(**escaped_user_data)
-            return generate_pdf(uid, questionnaire_id, rendered_latex)
+            # template = Template(latex_template)
+            # rendered_latex = template.render(**escaped_user_data)
+            return generate_pdf(uid, questionnaire_id, latex_template)
 
         # Optionally, generate the resume text
         prompt = create_prompt(user_data)
@@ -314,11 +317,15 @@ def generate_pdf(uid, questionnaire_id, latex_content):
 
     with open(tex_file_path, "w") as tex_file:
         tex_file.write(latex_content)
-
+    print("WROTE TEX FILE")
     try:
+        # print(TEMP_DIR, tex_file_path)
         subprocess.run(["tectonic", "-o", TEMP_DIR, tex_file_path],
                        check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        print("Generated pdf FILE")
+
     except subprocess.CalledProcessError as e:
+        print(e)
         return {"error": "Failed to generate PDF", "details": e.stderr.decode()}, 500
 
     return view_pdf(pdf_id)

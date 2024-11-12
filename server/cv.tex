@@ -41,7 +41,6 @@
   \vspace{-4pt}\scshape\raggedright\large
 }{}{0em}{}[\color{black}\titlerule \vspace{-5pt}]
 
-{% raw %}
 % Custom commands
 \newcommand{\resumeItem}[1]{
   \item\small{
@@ -62,7 +61,6 @@
 
 \newcommand{\resumeSubHeadingListStart}{\begin{itemize}[leftmargin=0.15in, label={}]}
 \newcommand{\resumeSubHeadingListEnd}{\end{itemize}}
-{% endraw %}
 
 %-------------------------------------------
 %%%%%%  RESUME STARTS HERE  %%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -71,48 +69,82 @@
 
 % Header
 \begin{center}
-  \textbf{\Huge \scshape {{ firstName }} {{ middleInitial }} {{ lastName }}} \\[0.1in]
-  {{ address }} \\[0.05in]
-  {{ contactNumber }} \hspace{5pt} $\vert$ \hspace{5pt} \href{mailto:{{ email }}}{{ email }}
-  {% if githubLink %}
-  \hspace{5pt} $\vert$ \hspace{5pt} \href{{ githubLink }}{{ githubLink }}
-  {% endif %}
-  {% if linkedinLink %}
-  \hspace{5pt} $\vert$ \hspace{5pt} \href{{ linkedinLink }}{{ linkedinLink }}
-  {% endif %}
+    \textbf{\Huge \scshape Stanley Chiu} \\[0.1in]
+    2301 Vanderbilt Pl. PMB 350742, Nashville, TN, 37235 \\[0.05in]
+    +1 (401) 318 7352 \hspace{5pt} $\vert$ \hspace{5pt} \href{mailto:stanley.posiang.chiu@gmail.com}{stanley.posiang.chiu@gmail.com} \hspace{5pt} $\vert$ \hspace{5pt} \href{https://github.com/stanleychiu0314}{github.com/stanleychiu0314}
 \end{center}
-
-
 
 %-----------EDUCATION-----------
 \section{Education}
 \resumeSubHeadingListStart
   \resumeSubheading
-    { {{ college }} }{ {{ locationOfCollege }} }
-    { {{ majorConcentration }} }{ {{ startYear }} -- {{ endYear }} }
+    {Vanderbilt University}{Nashville, TN}
+    {Double Major in Computer Science \& Human Organizational Development}{August 2022 -- May 2026}
   \resumeItemListStart
-    {% if gpa %}
-    \resumeItem{Cumulative GPA: {{ gpa }}}
-    {% endif %}
-    {% if relevantCoursework %}
-    \resumeItem{Coursework: {{ relevantCoursework }}}
-    {% endif %}
+    \resumeItem{Cumulative GPA: 3.748/4.00}
+    \resumeItem{Coursework: Autonomous Vehicles \& Traffic Design, Principles of Software Engineering, Advanced Program Design \& Data Structures, Intermediate Software Design, Discrete Structures, Programming Languages}
   \resumeItemListEnd
 \resumeSubHeadingListEnd
 
 %-----------EXPERIENCE-----------
 \section{Work Experience/Projects}
 \resumeSubHeadingListStart
-{% for job in jobExperiences %}
+
   \resumeSubheading
-    { {{ job.name }} }{ {{ job.location }} }
-    { {{ job.title }} }{ }
+    {Wallace Lab -- Kennedy Center for Research}{Nashville, Tennessee}
+    {Virtual Reality Environment Developer}{May 2024 -- Present}
   \resumeItemListStart
-    {% for bullet in job.description.split('\n') %}
-    \resumeItem{ {{ bullet }} }
-    {% endfor %}
+    \resumeItem{Develops, modifies, and tests virtual reality environments using Unity Software and C\# scripts to study the neural bases of multisensory processing specifically on critical condition patients diagnosed with autism or schizophrenia.}
+    \resumeItem{Optimizes VR integration performance by debugging scripts, enhancing eye-tracking coordination utilizing the Optitrack software, and tuning 3D audio spatialization framework using audio rendering algorithms and integrating binaural techniques.}
   \resumeItemListEnd
-{% endfor %}
+
+  \resumeSubheading
+    {Vanderbilt University Computer Science Department}{Nashville, TN}
+    {Teaching Assistant}{August 2024 -- Present}
+  \resumeItemListStart
+    \resumeItem{Leads four weekly office hours sessions and contributes 15+ grading hours for CS 3270 Programming Languages attended by 150+ students.}
+    \resumeItem{Facilitates student understanding of diverse programming paradigms by guiding them through hands-on projects, such as developing a Sudoku solver in C++, Racket, Prolog, and Go.}
+  \resumeItemListEnd
+
+  \resumeSubheading
+    {SkyLeap AI}{Shanghai, China}
+    {Artificial Intelligence \& Machine Learning Intern}{May 2024 -- August 2024}
+  \resumeItemListStart
+    \resumeItem{Designed and developed an AI chatbot website that provided various customized GPTs that attended to the needs of various product managers using React and Node.js.}
+    \resumeItem{Developed and modified an ARIMAX model to predict the fluctuations in sales based on user-given prices of various products at different time periods of the year using Python and SQL.}
+  \resumeItemListEnd
+
+  \resumeSubheading
+    {Build Her a Bridge -- Non Profit Organization}{Nashville, TN}
+    {Full Stack Developer}{November 2023 -- May 2024}
+  \resumeItemListStart
+    \resumeItem{Developed a cross-platform mobile application for iOS and Android users using the Flutter Framework and Google’s Firebase to provide easily-accessible and extensive resources on mental health awareness and wellness to young girls around the U.S.}
+    \resumeItem{Implemented essential features of the app using the Dart Language, including multiple licensed therapists’ contacts directory with scheduling functionality, tailored organization and resources located near the user, and an online chat support feature, allowing users to engage in real-time conversations with certified therapists.}
+    \resumeItem{Designed an interactive and entertainment-focused frame that includes daily inspirational quotes, fun facts, and a progress checking badge-reward system based on users’ accuracy in a weekly quiz on different aspects of mental wellness.}
+  \resumeItemListEnd
+
+\resumeSubHeadingListEnd
+
+%-----------LEADERSHIP & EXTRA-CURRICULARS-----------
+\section{Leadership \& Extracurriculars}
+\resumeSubHeadingListStart
+
+  \resumeSubheading
+    {Vanderbilt Junior Application Competition}{Nashville, TN}
+    {President}{January 2024 -- Present}
+  \resumeItemListStart
+    \resumeItem{Organized a three-month-long web application competition at Vanderbilt University aimed to provide mentorship, resources, and experience to high school students around Nashville.}
+    \resumeItem{Mentored a group of five high school students on basic web development, UI/UX frameworks, and technical support for three hours per week.}
+  \resumeItemListEnd
+
+  \resumeSubheading
+    {Vanderbilt Men’s Club Volleyball}{Nashville, TN}
+    {Secretary \& Starting Setter}{January 2022 -- Present}
+  \resumeItemListStart
+    \resumeItem{Awarded Champions of the 2023 National Collegiate Volleyball Federation Division II Tournament after placing 5th Seed in Regional ECVA Qualifiers as a first year starting setter.}
+    \resumeItem{Coordinate monthly mixer events such as spike ball tournament and scavenger hunts alongside social chairs from various club sports programs to boost team morale.}
+  \resumeItemListEnd
+
 \resumeSubHeadingListEnd
 
 %-----------ADDITIONAL INFORMATION-----------
@@ -124,3 +156,4 @@
 \resumeItemListEnd
 
 \end{document}
+

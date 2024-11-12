@@ -26,10 +26,10 @@ const Signup = () => {
         e.preventDefault();
         setError(''); // Clear previous errors
         try {
-          const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
-          console.log(userCredential.user); // You can handle this user object as needed
-          alert('Signup Successful!');
-          router.push('/dashboard')
+            const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
+            console.log(userCredential.user); // You can handle this user object as needed
+            alert('Signup Successful!');
+            router.push('/dashboard')
         } catch (err: any) {
             // Handle Firebase errors
             switch (err.code) {
@@ -49,7 +49,7 @@ const Signup = () => {
                     setError('Failed to create an account. Please try again.');
             }
         }
-      };
+    };
 
     return (
         <div className="flex justify-center items-center h-screen bg-gradient-to-r from-yellow-50 to-yellow-100">
