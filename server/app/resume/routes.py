@@ -1,3 +1,4 @@
+
 # app/resume/routes.py
 
 from jinja2 import Template
@@ -21,6 +22,27 @@ if TEMP_DIR is None:
     TEMP_DIR = "/files/"
 TEST = False
 
+def escape_latex(s):
+    if isinstance(s, str):
+        return s.replace('\\', r'\textbackslash{}') \
+                .replace('&', r'\&') \
+                .replace('%', r'\%') \
+                .replace('$', r'\$') \
+                .replace('#', r'\#') \
+                .replace('_', r'\_') \
+                .replace('{', r'\{') \
+                .replace('}', r'\}') \
+                .replace('~', r'\textasciitilde{}') \
+                .replace('^', r'\^{}')
+    return s
+
+def escape_user_data(data):
+    if isinstance(data, dict):
+        return {k: escape_user_data(v) for k, v in data.items()}
+    elif isinstance(data, list):
+        return [escape_user_data(item) for item in data]
+    else:
+        return escape_latex(data)
 
 def test(out: str):
     print(out)
@@ -273,23 +295,34 @@ def generate_resume():
         finally:
             cursor.close()
             conn.close()
-            print("HELLO")
-            # Read the LaTeX template
-            # escaped_user_data = escape_user_data(user_data)
-            with open("cv.tex", 'r') as file:
-                latex_template = file.read()
-            print(latex_template)
-            # Render the template with escaped user data
-            # template = Template(latex_template)
-            # rendered_latex = template.render(**escaped_user_data)
-            return generate_pdf(uid, questionnaire_id, latex_template)
+        # Escape user data and process job descriptions
+        escaped_user_data = escape_user_data(user_data)
+
+        # Process job descriptions into bullets
+        for job in escaped_user_data.get('jobExperiences', []):
+            job['bullets'] = job.get('description', '').split('\n')
+
+        # Optionally, you can add a 'professionalSummary' field if you want
+        # escaped_user_data['professionalSummary'] = generate_professional_summary(user_data)
+
+        # Read the LaTeX template
+        with open("cv.tex", 'r') as file:
+            latex_template = file.read()
+
+        # Render the template with escaped user data
+        template = Template(latex_template)
+        rendered_latex = template.render(**escaped_user_data)
+
+        # Generate PDF
+        questionnaire_id = 'some_unique_id'  # Replace with actual questionnaire ID from your database
+        return generate_pdf(uid, questionnaire_id, rendered_latex)
 
         # Optionally, generate the resume text
-        prompt = create_prompt(user_data)
-        generated_text = generate_resume_text(prompt)
+        #prompt = create_prompt(user_data)
+        #generated_text = generate_resume_text(prompt)
 
         # Return the generated text to the frontend
-        return jsonify({'generatedText': generated_text})
+        #return jsonify({'generatedText': generated_text})
 
     except Exception as e:
         current_app.logger.error(f'Unexpected error: {e}')
@@ -313,24 +346,24 @@ def generate_pdf(uid, questionnaire_id, latex_content):
         return {"error": "No LaTeX content provided"}, 400
 
     pdf_id = f"{uid}_{questionnaire_id}"
-    print("making dir")
     os.makedirs(TEMP_DIR, exist_ok=True)
-    print("made dir")
     tex_file_path = os.path.join(TEMP_DIR, f"{pdf_id}.tex")
     pdf_file_path = os.path.join(TEMP_DIR, f"{pdf_id}.pdf")
 
     with open(tex_file_path, "w") as tex_file:
         tex_file.write(latex_content)
-    print("WROTE TEX FILE")
+    print("LaTeX file written to:", tex_file_path)
     try:
         # print(TEMP_DIR, tex_file_path)
         subprocess.run(["tectonic", "-o", TEMP_DIR, tex_file_path],
                        check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        print("Generated pdf FILE")
+        print("PDF generated at:", pdf_file_path)
 
     except subprocess.CalledProcessError as e:
-        print(e)
-        return {"error": "Failed to generate PDF", "details": e.stderr.decode()}, 500
+        error_message = e.stderr.decode()
+        print("Error during PDF generation:", error_message)
+        return {"error": "Failed to generate PDF", "details": error_message}, 500
+
 
     return view_pdf(pdf_id)
 # redirect(url_for('view_pdf', pdf_id=pdf_id))
@@ -376,10 +409,9 @@ def get_pdf(pdf_id):
 
 @resume_bp.route('/pdfs/<uid>/<questionnaire_id>', methods=['GET'])
 def get_pdf1(uid, questionnaire_id):
-    # load_dotenv()
-    # TEMP_DIR = os.getenv("PERSISTENT_ADDRESS")
+    load_dotenv()
+    TEMP_DIR = os.getenv("PERSISTENT_ADDRESS")
     return send_file(os.path.join(TEMP_DIR, f"{uid}_{questionnaire_id}.pdf"))
-
 
 @resume_bp.route('/resumes/', methods=['GET'])
 def get_resumes():

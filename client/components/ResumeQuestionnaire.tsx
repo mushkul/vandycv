@@ -1,3 +1,4 @@
+
 // ResumeQuestionnaire.tsx
 
 import axios from 'axios';
@@ -173,9 +174,7 @@ const ResumeQuestionnaire: React.FC = () => {
         }
 
         try {
-            //const response = await axios.get('http://localhost:8080/home', {});
             const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/generateresume/`;
-
 
             const user = auth.currentUser;
             if (user) {
@@ -186,79 +185,23 @@ const ResumeQuestionnaire: React.FC = () => {
                 const response = await axios.post(apiUrl, formData, {
                     headers: {
                         'Authorization': `Bearer ${idToken}`,
-                        //     'Content-Type': 'application/json',
                     },
-                    responseType: 'blob'
+                    responseType: 'blob',
                 });
 
+                const pdfBlob = new Blob([response.data], { type: 'application/pdf' });
+                const pdfUrl = URL.createObjectURL(pdfBlob);
 
-                const data = response.data;
-                const displayPdf = (pdfBlob: any) => {
-                    // Create a URL for the PDF Blob
-                    const pdfUrl = URL.createObjectURL(pdfBlob);
-
-                    // Open the PDF in a new tab
-                    window.open(pdfUrl, '_blank');
-                };
-
-                displayPdf(data);
-
-
-
-                // console.log("HAHAHA", data)
-                const newWindow = window.open('', '_blank');
-                if (newWindow) {
-                    newWindow.document.open();
-                    newWindow.document.write(response.data); // Write the HTML from response data
-                    newWindow.document.close();
-                    return;
-                } else {
-                    console.error("Failed to open a new window.");
-                    return;
-                }
-
-                // {
-                //     const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/pdfs/fuPCVnWpFGf1IiHgKJsVcURLUda2/26`;
-                //     const response = await axios.get(apiUrl, {
-                //         headers: {
-                //             'Authorization': `Bearer ${idToken}`,
-                //             //     'Content-Type': 'application/json',
-                //         },
-                //         responseType: 'blob'
-                //     });
-                //     displayPdf(response.data);
-                //     const newWindow = window.open('', '_blank');
-                //     if (newWindow) {
-                //         newWindow.document.open();
-                //         newWindow.document.write(response.data); // Write the HTML from response data
-                //         newWindow.document.close();
-                //         return;
-                //     } else {
-                //         console.error("Failed to open a new window.");
-                //         return;
-                //     }
-                // }
-
-
-                console.log('Response data:', data);
-
-                if (data.generatedText) {
-                    setGeneratedText(data.generatedText);
-                } else if (data.error) {
-                    setError(data.error);
-                }
+                // Open the PDF in a new tab
+                window.open(pdfUrl, '_blank');
             } else {
                 setError('User not authenticated');
                 setLoading(false);
                 return;
             }
-
         } catch (err) {
-
             console.error(err);
-            if (err instanceof Error) {
-                setError(`An error occurred while generating the text: ${err.message || err}`);
-            }
+            setError('An error occurred while generating the resume.');
         } finally {
             setLoading(false);
         }
