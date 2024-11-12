@@ -10,6 +10,8 @@ from openai import OpenAI
 from firebase_admin import auth
 from app.db import get_db_connection
 os.environ["PATH"] += os.pathsep + "/opt/render/project/src/server"
+from jinja2 import Template
+
 # from openai.error import OpenAIError
 
 resume_bp = Blueprint('resume_bp', __name__)
@@ -20,6 +22,27 @@ TEST = False
 def test(out: str):
     print(out)
 
+def escape_latex(s):
+    if isinstance(s, str):
+        return s.replace('\\', r'\textbackslash{}') \
+                .replace('&', r'\&') \
+                .replace('%', r'\%') \
+                .replace('$', r'\$') \
+                .replace('#', r'\#') \
+                .replace('_', r'\_') \
+                .replace('{', r'\{') \
+                .replace('}', r'\}') \
+                .replace('~', r'\textasciitilde{}') \
+                .replace('^', r'\^{}')
+    return s
+
+def escape_user_data(data):
+        if isinstance(data, dict):
+            return {k: escape_user_data(v) for k, v in data.items()}
+        elif isinstance(data, list):
+            return [escape_user_data(item) for item in data]
+        else:
+            return escape_latex(data)
 
 def create_prompt(user_data):
     print("Started prompt creation")
@@ -128,9 +151,7 @@ def generate_resume_text(prompt):
 
 @resume_bp.route('/generateresume/', methods=['POST'])
 def generate_resume():
-    with open("cv.tex", 'r') as file:
-        latex_content = file.read()
-    print(latex_content)
+    
     # return redirect(url_for('resume_bp.generate_pdf', latex_content=latex_content))
     # return jsonify({'generatedText': "HI"})
     try:
@@ -247,7 +268,15 @@ def generate_resume():
             cursor.close()
             conn.close()
             print("HELLO")
-            return generate_pdf(uid, questionnaire_id, latex_content)
+            # Read the LaTeX template
+            escaped_user_data = escape_user_data(user_data)
+            with open("cv.tex", 'r') as file:
+                latex_template = file.read()
+
+            # Render the template with escaped user data
+            template = Template(latex_template)
+            rendered_latex = template.render(**escaped_user_data)
+            return generate_pdf(uid, questionnaire_id, rendered_latex)
 
         # Optionally, generate the resume text
         prompt = create_prompt(user_data)
