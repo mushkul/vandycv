@@ -15,7 +15,8 @@ from jinja2 import Template
 # from openai.error import OpenAIError
 
 resume_bp = Blueprint('resume_bp', __name__)
-
+load_dotenv()
+TEMP_DIR = os.getenv("PERSISTENT_ADDRESS")
 TEST = False
 
 
@@ -291,13 +292,14 @@ def generate_resume():
 
 
 # Temporary directory to store PDF files
-load_dotenv()
-TEMP_DIR = os.getenv("PERSISTENT_ADDRESS")
+
 # os.makedirs(TEMP_DIR, exist_ok=True)
 
 
 # @resume_bp.route('/generate_pdf')
 def generate_pdf(uid, questionnaire_id, latex_content):
+    global TEMP_DIR
+    TEMP_DIR = os.getenv("PERSISTENT_ADDRESS")
     print("PERSISTENT_ADDRESS", TEMP_DIR)
     # latex_content = request.json.get("latex_content")
     if not latex_content:
@@ -343,14 +345,18 @@ def view_pdf(pdf_id):
     </html>
     """
 
-    print(html_content)
+    # print(html_content)
+    print("File PATH2", pdf_file_path)
+    print("URL:", url_for('resume_bp.get_pdf', pdf_id=pdf_id))
     return redirect(url_for('resume_bp.get_pdf', pdf_id=pdf_id))
     # return render_template_string(html_content)
 
 
 @resume_bp.route('/pdf/<pdf_id>')
 def get_pdf(pdf_id):
+    # pdf_file_path = "{pdf_file_path}"
     pdf_file_path = os.path.join(TEMP_DIR, f"{pdf_id}.pdf")
+    print("FILE PATH", pdf_file_path)
     if not os.path.exists(pdf_file_path):
         return {"error": "PDF not found"}, 404
 
@@ -359,4 +365,6 @@ def get_pdf(pdf_id):
 
 @resume_bp.route('/pdfs/<uid>/<questionnaire_id>', methods=['GET'])
 def get_pdf1(uid, questionnaire_id):
+    load_dotenv()
+    TEMP_DIR = os.getenv("PERSISTENT_ADDRESS")
     return send_file(os.path.join(TEMP_DIR, f"{uid}_{questionnaire_id}.pdf"))
