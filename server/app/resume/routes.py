@@ -314,7 +314,6 @@ def generate_resume():
         rendered_latex = template.render(**escaped_user_data)
 
         # Generate PDF
-        questionnaire_id = 'some_unique_id'  # Replace with actual questionnaire ID from your database
         return generate_pdf(uid, questionnaire_id, rendered_latex)
 
         # Optionally, generate the resume text
