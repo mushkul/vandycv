@@ -17,6 +17,8 @@ os.environ["PATH"] += os.pathsep + "/opt/render/project/src/server"
 resume_bp = Blueprint('resume_bp', __name__)
 load_dotenv()
 TEMP_DIR = os.getenv("PERSISTENT_ADDRESS")
+if TEMP_DIR is None:
+    TEMP_DIR = "/files/"
 TEST = False
 
 
@@ -303,6 +305,8 @@ def generate_resume():
 def generate_pdf(uid, questionnaire_id, latex_content):
     global TEMP_DIR
     TEMP_DIR = os.getenv("PERSISTENT_ADDRESS")
+    if TEMP_DIR is None:
+        TEMP_DIR = "/files/"
     print("PERSISTENT_ADDRESS", TEMP_DIR)
     # latex_content = request.json.get("latex_content")
     if not latex_content:
