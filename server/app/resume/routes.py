@@ -268,12 +268,15 @@ TEMP_DIR = os.getenv("PERSISTENT_ADDRESS")
 
 # @resume_bp.route('/generate_pdf')
 def generate_pdf(uid, questionnaire_id, latex_content):
+    print("PERSISTENT_ADDRESS", TEMP_DIR)
     # latex_content = request.json.get("latex_content")
     if not latex_content:
         return {"error": "No LaTeX content provided"}, 400
 
     pdf_id = f"{uid}_{questionnaire_id}"
+    print("making dir")
     os.makedirs(TEMP_DIR, exist_ok=True)
+    print("made dir")
     tex_file_path = os.path.join(TEMP_DIR, f"{pdf_id}.tex")
     pdf_file_path = os.path.join(TEMP_DIR, f"{pdf_id}.pdf")
 
