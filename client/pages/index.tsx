@@ -1,36 +1,15 @@
-/* eslint-disable react-hooks/rules-of-hooks */
-import React, { useEffect, useState } from 'react'
-function index() {
-  const [message, setMessage] = useState("Loading");
-  const [people, setpeople] = useState([]);
+import { useEffect } from 'react';
+import { useRouter } from 'next/router';
+
+function Index() {
+  const router = useRouter();
 
   useEffect(() => {
-    const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/home`;
-    fetch(apiUrl).then(
-      response => response.json()
-    ).then(
-      data => {
-        setMessage(data.message);
-        console.log(data.message);
-        setpeople(data.people);
-        console.log(data.people);
-      })
-  }, [])
+    // Redirect to /home
+    router.push('/home');
+  }, [router]);
 
-  return (
-    <div>
-      <div>{message}</div>
-      {
-        people.map((person, index) => (
-          <div key={index}>
-            {person}
-          </div>
-        )
-        )
-      }
-
-    </div>
-  )
+  return null; // No need to render anything as we are redirecting
 }
 
-export default index;
+export default Index;
