@@ -380,6 +380,7 @@ def get_pdf1(uid, questionnaire_id):
     TEMP_DIR = os.getenv("PERSISTENT_ADDRESS")
     return send_file(os.path.join(TEMP_DIR, f"{uid}_{questionnaire_id}.pdf"))
 
+
 @resume_bp.route('/resumes/', methods=['GET'])
 def get_resumes():
     try:
