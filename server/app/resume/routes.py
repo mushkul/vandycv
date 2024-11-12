@@ -379,3 +379,53 @@ def get_pdf1(uid, questionnaire_id):
     load_dotenv()
     TEMP_DIR = os.getenv("PERSISTENT_ADDRESS")
     return send_file(os.path.join(TEMP_DIR, f"{uid}_{questionnaire_id}.pdf"))
+
+@resume_bp.route('/resumes/', methods=['GET'])
+def get_resumes():
+    try:
+        # Step 1: Authenticate the user
+        id_token = None
+        auth_header = request.headers.get('Authorization', None)
+        if auth_header:
+            id_token = auth_header.split(' ')[1]
+        if id_token is None:
+            return jsonify({'error': 'Unauthorized'}), 401
+        decoded_token = auth.verify_id_token(id_token)
+        uid = decoded_token['uid']
+
+        # Step 2: Connect to the database
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        # Step 3: Query for the user's resumes
+        select_questionnaires_query = """
+            SELECT questionnaire_id, name, date_created
+            FROM questionnaires
+            WHERE uid = %s
+            ORDER BY date_created DESC;
+        """
+        cursor.execute(select_questionnaires_query, (uid,))
+        questionnaires = cursor.fetchall()
+
+        # Step 4: Format the data
+        resumes_list = []
+        for q in questionnaires:
+            questionnaire_id = q[0]
+            name = q[1]
+            date_created = q[2]
+            if date_created:
+                date_created_str = date_created.strftime('%Y-%m-%d %H-%M')
+            else:
+                date_created_str = 'Unknown'
+            resumes_list.append({
+                'questionnaire_id': questionnaire_id,
+                'name': name,
+                'date_created': date_created_str
+            })
+
+        # Step 5: Return the data as JSON
+        return jsonify({'resumes': resumes_list})
+
+    except Exception as e:
+        current_app.logger.error(f'Error fetching resumes: {e}', exc_info=True)
+        return jsonify({'error': 'An error occurred while fetching resumes.'}), 500
