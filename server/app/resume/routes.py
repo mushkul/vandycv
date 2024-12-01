@@ -453,7 +453,7 @@ def get_resumes():
             name = q[1]
             date_created = q[2]
             if date_created:
-                date_created_str = date_created.strftime('%Y-%m-%d %H-%M')
+                date_created_str = date_created.strftime('%Y-%m-%d %H:%M')
             else:
                 date_created_str = 'Unknown'
             resumes_list.append({

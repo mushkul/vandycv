@@ -1,4 +1,3 @@
-
 // ResumeQuestionnaire.tsx
 
 import axios from 'axios';
@@ -33,15 +32,20 @@ interface FormData {
     jobExperiences: JobExperience[];
 }
 
-// JobExperienceForm component remains the same
+// JobExperienceForm component
 const JobExperienceForm: React.FC<{
     experience: JobExperience;
     index: number;
     onChange: (index: number, field: string, value: string) => void;
 }> = ({ experience, index, onChange }) => (
-    <section key={index}>
+    <section key={index} className="relative pl-12 mb-12">
+        {/* Vertical line */}
+        <div className="absolute left-5 top-0 w-0.5 h-full bg-gray-300"></div>
+        {/* Circle indicator */}
+        <div className="absolute left-4 top-0 w-3 h-3 bg-white border-2 border-amber-500 rounded-full"></div>
         <h2 className="text-xl font-semibold mb-4">Job Experience #{index + 1}</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Job Name */}
             <div>
                 <label className="block mb-1">Job Name: *</label>
                 <input
@@ -53,6 +57,7 @@ const JobExperienceForm: React.FC<{
                     className="w-full p-2 border rounded bg-amber-50"
                 />
             </div>
+            {/* Title */}
             <div>
                 <label className="block mb-1">Title: *</label>
                 <input
@@ -64,6 +69,7 @@ const JobExperienceForm: React.FC<{
                     className="w-full p-2 border rounded bg-amber-50"
                 />
             </div>
+            {/* Location */}
             <div>
                 <label className="block mb-1">Location: *</label>
                 <input
@@ -75,6 +81,7 @@ const JobExperienceForm: React.FC<{
                     className="w-full p-2 border rounded bg-amber-50"
                 />
             </div>
+            {/* Description */}
             <div className="col-span-2">
                 <label className="block mb-1">Short Description of what you did: *</label>
                 <textarea
@@ -112,11 +119,9 @@ const ResumeQuestionnaire: React.FC = () => {
         jobExperiences: [{ name: '', title: '', location: '', description: '' }],
     });
 
-    // State variables for resume text, loading, and error handling
-    //const [resumeText, setResumeText] = useState<string>(''); // For storing generated resume
-    const [generatedText, setGeneratedText] = useState<string>(''); // For storing generated text
-    const [loading, setLoading] = useState<boolean>(false); // For loading state
-    const [error, setError] = useState<string>(''); // For error messages
+    // State variables for loading and error handling
+    const [loading, setLoading] = useState<boolean>(false);
+    const [error, setError] = useState<string>('');
 
     const handleChange = (
         e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -159,9 +164,8 @@ const ResumeQuestionnaire: React.FC = () => {
         e.preventDefault();
         setLoading(true);
         setError('');
-        setGeneratedText(''); // Clear any previous text
 
-        // Basic validation (optional)
+        // Basic validation
         if (
             !formData.firstName ||
             !formData.lastName ||
@@ -184,7 +188,7 @@ const ResumeQuestionnaire: React.FC = () => {
                 // Make the request with the ID token in the Authorization header
                 const response = await axios.post(apiUrl, formData, {
                     headers: {
-                        'Authorization': `Bearer ${idToken}`,
+                        Authorization: `Bearer ${idToken}`,
                     },
                     responseType: 'blob',
                 });
@@ -205,19 +209,27 @@ const ResumeQuestionnaire: React.FC = () => {
         } finally {
             setLoading(false);
         }
-
     };
 
     return (
-        <div className="max-w-4xl mx-auto p-6 bg-amber-100 rounded-lg shadow-lg">
-            <h1 className="text-3xl font-bold mb-6 text-center bg-amber-300 py-2 rounded">
+        <div className="max-w-4xl mx-auto p-6 bg-white">
+            <h1 className="text-3xl font-bold mb-6 text-center py-2">
                 Resume Survey
             </h1>
-            <p className="text-right mb-4 text-sm">Questions marked with * are required</p>
+            <p className="text-right mb-4 text-sm">
+                Questions marked with * are required
+            </p>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-12 relative">
+            
+
+                {/* Vertical line */}
+                <div className="absolute left-5 top-0 w-0.5 h-full bg-gray-300"></div>
+
                 {/* Personal Information Section */}
-                <section>
+                <section className="relative pl-12">
+                    {/* Circle indicator */}
+                    <div className="absolute left-4 top-0 w-3 h-3 bg-white border-2 border-amber-500 rounded-full"></div>
                     <h2 className="text-xl font-semibold mb-4">Personal Information</h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {/* First Name */}
@@ -230,6 +242,7 @@ const ResumeQuestionnaire: React.FC = () => {
                                 onChange={handleChange}
                                 required
                                 className="w-full p-2 border rounded bg-amber-50"
+                                placeholder="First Name"
                             />
                         </div>
                         {/* Last Name */}
@@ -242,6 +255,7 @@ const ResumeQuestionnaire: React.FC = () => {
                                 onChange={handleChange}
                                 required
                                 className="w-full p-2 border rounded bg-amber-50"
+                                placeholder="Last Name"
                             />
                         </div>
                         {/* Middle Initial */}
@@ -254,6 +268,7 @@ const ResumeQuestionnaire: React.FC = () => {
                                 onChange={handleChange}
                                 maxLength={1}
                                 className="w-full p-2 border rounded bg-amber-50"
+                                placeholder="M"
                             />
                         </div>
                         {/* Address */}
@@ -265,6 +280,7 @@ const ResumeQuestionnaire: React.FC = () => {
                                 value={formData.address}
                                 onChange={handleChange}
                                 className="w-full p-2 border rounded bg-amber-50"
+                                placeholder="123 Main St, City, State"
                             />
                         </div>
                         {/* Email */}
@@ -277,6 +293,7 @@ const ResumeQuestionnaire: React.FC = () => {
                                 onChange={handleChange}
                                 required
                                 className="w-full p-2 border rounded bg-amber-50"
+                                placeholder="you@example.com"
                             />
                         </div>
                         {/* Contact Number */}
@@ -289,6 +306,7 @@ const ResumeQuestionnaire: React.FC = () => {
                                 onChange={handleChange}
                                 required
                                 className="w-full p-2 border rounded bg-amber-50"
+                                placeholder="1234567890"
                             />
                         </div>
                         {/* LinkedIn Link */}
@@ -300,6 +318,7 @@ const ResumeQuestionnaire: React.FC = () => {
                                 value={formData.linkedinLink}
                                 onChange={handleChange}
                                 className="w-full p-2 border rounded bg-amber-50"
+                                placeholder="https://www.linkedin.com/in/yourprofile"
                             />
                         </div>
                         {/* GitHub Link */}
@@ -311,13 +330,16 @@ const ResumeQuestionnaire: React.FC = () => {
                                 value={formData.githubLink}
                                 onChange={handleChange}
                                 className="w-full p-2 border rounded bg-amber-50"
+                                placeholder="https://github.com/yourusername"
                             />
                         </div>
                     </div>
                 </section>
 
                 {/* Education Section */}
-                <section>
+                <section className="relative pl-12">
+                    {/* Circle indicator */}
+                    <div className="absolute left-4 top-0 w-3 h-3 bg-white border-2 border-amber-500 rounded-full"></div>
                     <h2 className="text-xl font-semibold mb-4">Education</h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {/* College */}
@@ -330,6 +352,7 @@ const ResumeQuestionnaire: React.FC = () => {
                                 onChange={handleChange}
                                 required
                                 className="w-full p-2 border rounded bg-amber-50"
+                                placeholder="University of Example"
                             />
                         </div>
                         {/* Major/Concentration */}
@@ -342,6 +365,7 @@ const ResumeQuestionnaire: React.FC = () => {
                                 onChange={handleChange}
                                 required
                                 className="w-full p-2 border rounded bg-amber-50"
+                                placeholder="Computer Science"
                             />
                         </div>
                         {/* Second Major */}
@@ -353,6 +377,7 @@ const ResumeQuestionnaire: React.FC = () => {
                                 value={formData.secondMajor}
                                 onChange={handleChange}
                                 className="w-full p-2 border rounded bg-amber-50"
+                                placeholder="Mathematics"
                             />
                         </div>
                         {/* GPA */}
@@ -364,6 +389,7 @@ const ResumeQuestionnaire: React.FC = () => {
                                 value={formData.gpa}
                                 onChange={handleChange}
                                 className="w-full p-2 border rounded bg-amber-50"
+                                placeholder="3.8"
                             />
                         </div>
                         {/* Location of College */}
@@ -376,6 +402,7 @@ const ResumeQuestionnaire: React.FC = () => {
                                 onChange={handleChange}
                                 required
                                 className="w-full p-2 border rounded bg-amber-50"
+                                placeholder="City, State"
                             />
                         </div>
                         {/* Start and End Year */}
@@ -389,6 +416,7 @@ const ResumeQuestionnaire: React.FC = () => {
                                     onChange={handleChange}
                                     required
                                     className="w-full p-2 border rounded bg-amber-50"
+                                    placeholder="2018"
                                 />
                             </div>
                             <div className="flex-1">
@@ -400,6 +428,7 @@ const ResumeQuestionnaire: React.FC = () => {
                                     onChange={handleChange}
                                     required
                                     className="w-full p-2 border rounded bg-amber-50"
+                                    placeholder="2022"
                                 />
                             </div>
                         </div>
@@ -412,34 +441,33 @@ const ResumeQuestionnaire: React.FC = () => {
                                 onChange={handleChange}
                                 className="w-full p-2 border rounded bg-amber-50"
                                 rows={3}
+                                placeholder="Algorithms, Data Structures, Operating Systems..."
                             ></textarea>
                         </div>
                     </div>
                 </section>
 
                 {/* Job Experience Section */}
-                <section>
-                    {formData.jobExperiences.map((experience, index) => (
-                        <JobExperienceForm
-                            key={index}
-                            experience={experience}
-                            index={index}
-                            onChange={handleJobExperienceChange}
-                        />
-                    ))}
+                {formData.jobExperiences.map((experience, index) => (
+                    <JobExperienceForm
+                        key={index}
+                        experience={experience}
+                        index={index}
+                        onChange={handleJobExperienceChange}
+                    />
+                ))}
 
-                    {formData.jobExperiences.length < 4 && (
-                        <div className="text-center">
-                            <button
-                                type="button"
-                                onClick={addJobExperience}
-                                className="bg-amber-400 text-white px-4 py-2 rounded hover:bg-amber-500 transition-colors"
-                            >
-                                Add New Experience
-                            </button>
-                        </div>
-                    )}
-                </section>
+                {formData.jobExperiences.length < 4 && (
+                    <div className="text-center">
+                        <button
+                            type="button"
+                            onClick={addJobExperience}
+                            className="bg-amber-400 text-white px-4 py-2 rounded hover:bg-amber-500 transition-colors"
+                        >
+                            Add New Experience
+                        </button>
+                    </div>
+                )}
 
                 {/* Submit Button */}
                 <div className="text-center">
@@ -452,21 +480,11 @@ const ResumeQuestionnaire: React.FC = () => {
                 </div>
             </form>
 
-            {/* Display loading, error, and generated resume */}
+            {/* Display loading and error messages */}
             {loading && <p className="text-center mt-6">Generating your resume...</p>}
             {error && <p className="text-center text-red-500 mt-6">{error}</p>}
-            {generatedText && (
-                <section className="mt-6">
-                    <h2 className="text-2xl font-semibold mb-4">Generated Text for Your Resume:</h2>
-                    <div className="bg-white p-4 rounded shadow overflow-x-auto">
-                        <pre>{generatedText}</pre>
-                    </div>
-                </section>
-            )}
         </div>
     );
 };
 
 export default ResumeQuestionnaire;
-
-//for testing purposes
