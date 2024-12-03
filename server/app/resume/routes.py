@@ -308,6 +308,7 @@ def generate_resume():
         user_data = request.get_json()
         print("User data received:", user_data)
         # Extract user data
+        resume_name = user_data.get('resumeName', 'Resume')  # Use a default if not provided
         job_description_details = user_data.get('jobDescriptionDetails', '')
         first_name = user_data.get('firstName', '')
         last_name = user_data.get('lastName', '')
@@ -350,7 +351,7 @@ def generate_resume():
 
             insert_questionnaire_values = (
                 uid,
-                'Resume Questionnaire',
+                resume_name,
                 first_name,
                 last_name,
                 middle_initial,

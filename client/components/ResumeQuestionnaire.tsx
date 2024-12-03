@@ -22,6 +22,7 @@ interface LanguageSkill {
 
 
 interface FormData {
+    resumeName: string; // Add this line
     jobDescriptionDetails: string;
     firstName: string;
     lastName: string;
@@ -112,7 +113,7 @@ const JobExperienceForm: React.FC<{
                 </div>
             </div>
             <div className="col-span-2">
-                <label className="block mb-1">Description (use new lines for bullets): *</label>
+                <label className="block mb-1">Description: *</label>
                 <textarea
                     name="description"
                     value={experience.description}
@@ -165,6 +166,7 @@ const ResumeQuestionnaire: React.FC = () => {
 
     // Initial state for form data
     const [formData, setFormData] = useState<FormData>({
+        resumeName: '', // Initialize the new field
         jobDescriptionDetails: '', // Initialize new field
         firstName: '',
         lastName: '',
@@ -334,9 +336,31 @@ const ResumeQuestionnaire: React.FC = () => {
 
                 {/* Vertical line */}
                 <div className="absolute left-5 top-0 w-0.5 h-full bg-gray-300"></div>
+                {/* Sections */}
 
-                {/* Job Information*/}
-                <section>
+                {/* Resume Name Section */}
+                <section className="relative pl-12">
+                {/* Circle indicator */}
+                <div className="absolute left-4 top-0 w-3 h-3 bg-white border-2 border-amber-500 rounded-full"></div>
+                <h2 className="text-xl font-semibold mb-4">Resume Details</h2>
+                <div>
+                    <label className="block mb-1">Resume Name: *</label>
+                    <input
+                    type="text"
+                    name="resumeName"
+                    value={formData.resumeName}
+                    onChange={handleChange}
+                    required
+                    className="w-full p-2 border rounded bg-amber-50"
+                    placeholder="Enter a name for your resume"
+                    />
+                </div>
+                </section>
+
+                {/* Job Description Details */}
+                    <section className="relative pl-12">
+                    {/* Circle indicator */}
+                    <div className="absolute left-4 top-0 w-3 h-3 bg-white border-2 border-amber-500 rounded-full"></div>
                     <h2 className="text-xl font-semibold mb-4">Job Description Details</h2>
                     <div>
                         <label className="block mb-1">
@@ -351,7 +375,7 @@ const ResumeQuestionnaire: React.FC = () => {
                         placeholder="Describe your job responsibilities and achievements in detail..."
                         ></textarea>
                     </div>
-                    </section>
+                </section>
                 {/* Personal Information Section */}
                 <section className="relative pl-12">
                     {/* Circle indicator */}
@@ -574,17 +598,19 @@ const ResumeQuestionnaire: React.FC = () => {
                 </section>
 
                 {/* Job Experience Section */}
-                {formData.jobExperiences.map((experience, index) => (
-                    <JobExperienceForm
+                    <section className="relative pl-12">
+                    {/* Circle indicator */}
+                    <div className="absolute left-4 top-0 w-3 h-3 bg-white border-2 border-amber-500 rounded-full"></div>
+                    {formData.jobExperiences.map((experience, index) => (
+                        <JobExperienceForm
                         key={index}
                         experience={experience}
                         index={index}
                         onChange={handleJobExperienceChange}
-                    />
-                ))}
-
-                {formData.jobExperiences.length < 4 && (
-                    <div className="text-center">
+                        />
+                    ))}
+                    {formData.jobExperiences.length < 4 && (
+                        <div className="text-center">
                         <button
                             type="button"
                             onClick={addJobExperience}
@@ -592,82 +618,93 @@ const ResumeQuestionnaire: React.FC = () => {
                         >
                             Add New Experience
                         </button>
-                    </div>
-                )}
+                        </div>
+                    )}
+                </section>
 
                 {/* Language Skills Section */}
-                <section>
+                <section className="relative pl-12">
+                {/* Circle indicator */}
+                <div className="absolute left-4 top-0 w-3 h-3 bg-white border-2 border-amber-500 rounded-full"></div>
                     <h2 className="text-xl font-semibold mb-4">Language Skills</h2>
                     {formData.languageSkills.map((skill, index) => (
                         <LanguageSkillForm
-                            key={index}
-                            skill={skill}
-                            index={index}
-                            onChange={(idx, field, value) => {
-                                const updatedSkills = [...formData.languageSkills];
-                                updatedSkills[idx] = { ...updatedSkills[idx], [field]: value };
-                                setFormData({ ...formData, languageSkills: updatedSkills });
-                            }}
+                        key={index}
+                        skill={skill}
+                        index={index}
+                        onChange={(idx, field, value) => {
+                            const updatedSkills = [...formData.languageSkills];
+                            updatedSkills[idx] = { ...updatedSkills[idx], [field]: value };
+                            setFormData({ ...formData, languageSkills: updatedSkills });
+                        }}
                         />
                     ))}
+                    <div className="text-center">
                     <button
                         type="button"
                         onClick={() => {
-                            setFormData({
-                                ...formData,
-                                languageSkills: [
-                                    ...formData.languageSkills,
-                                    { language: '', proficiency: 'Native Proficiency' },
-                                ],
-                            });
+                        setFormData({
+                            ...formData,
+                            languageSkills: [
+                            ...formData.languageSkills,
+                            { language: '', proficiency: 'Native Proficiency' },
+                            ],
+                        });
                         }}
                         className="bg-amber-400 text-white px-4 py-2 rounded hover:bg-amber-500 transition-colors"
                     >
                         Add Language
                     </button>
+                    </div>
+                    
                 </section>
-
                 {/* Tech Stack */}
-                <section>
+                    <section className="relative pl-12">
+                    {/* Circle indicator */}
+                    <div className="absolute left-4 top-0 w-3 h-3 bg-white border-2 border-amber-500 rounded-full"></div>
                     <h2 className="text-xl font-semibold mb-4">Tech Stack</h2>
                     <div>
                         <label className="block mb-1">Technologies (separate by commas):</label>
                         <textarea
-                            name="techStack"
-                            value={formData.techStack}
-                            onChange={handleChange}
-                            className="w-full p-2 border rounded bg-amber-50"
-                            rows={2}
-                            placeholder="e.g., Python, JavaScript, React"
+                        name="techStack"
+                        value={formData.techStack}
+                        onChange={handleChange}
+                        className="w-full p-2 border rounded bg-amber-50"
+                        rows={2}
+                        placeholder="e.g., Python, JavaScript, React"
                         ></textarea>
                     </div>
-                </section>
+                    </section>
 
                 {/* Interests */}
-                <section>
+                    <section className="relative pl-12">
+                    {/* Circle indicator */}
+                    <div className="absolute left-4 top-0 w-3 h-3 bg-white border-2 border-amber-500 rounded-full"></div>
                     <h2 className="text-xl font-semibold mb-4">Interests</h2>
                     <div>
                         <label className="block mb-1">Interests (separate by commas):</label>
                         <textarea
-                            name="interests"
-                            value={formData.interests}
-                            onChange={handleChange}
-                            className="w-full p-2 border rounded bg-amber-50"
-                            rows={2}
-                            placeholder="e.g., Reading, Traveling, Sports"
+                        name="interests"
+                        value={formData.interests}
+                        onChange={handleChange}
+                        className="w-full p-2 border rounded bg-amber-50"
+                        rows={2}
+                        placeholder="e.g., Reading, Traveling, Sports"
                         ></textarea>
                     </div>
-                </section>
+                        <div className="text-center">
+                        
+                        <button
+                            type="submit"
+                            className="bg-amber-400 text-white px-4 py-2 rounded hover:bg-amber-500 transition-colors"
+                        >
+                            Submit
+                        </button>
+                    </div>
+                    </section>
 
                 {/* Submit Button */}
-                <div className="text-center">
-                    <button
-                        type="submit"
-                        className="bg-amber-500 text-white px-6 py-2 rounded hover:bg-amber-600 transition-colors"
-                    >
-                        Submit
-                    </button>
-                </div>
+
             </form>
 
             {/* Display loading and error messages */}
