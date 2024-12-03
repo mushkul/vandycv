@@ -118,12 +118,23 @@
 {% endif %}
 
 %-----------ADDITIONAL INFORMATION-----------
+{% if languageSkills or techStack or interests %}
 \section{Additional Information}
 \resumeItemListStart
-  \resumeItem{Language Skills: English (Native Proficiency), Chinese (Native Proficiency), Taiwanese (Native Proficiency)}
-  \resumeItem{Computer Skills: C++, Java, Python, HTML, CSS, Javascript}
-  \resumeItem{Interests: F1, Celtics, NFL, Bayern Munich, Road Trips, Poker}
+
+{% if languageSkills %}
+\resumeItem{\textbf{Language Skills}: {% for lang_skill in languageSkills %}{{ lang_skill.language }} ({{ lang_skill.proficiency }}){% if not loop.last %}, {% endif %}{% endfor %}}
+{% endif %}
+
+{% if techStack %}
+\resumeItem{\textbf{Tech Stack}: {{ techStack  }}}
+{% endif %}
+
+{% if interests %}
+\resumeItem{\textbf{Interests}: {{ interests }}}
+{% endif %}
+
 \resumeItemListEnd
+{% endif %}
 
-\end{document}
-
+\end{document}  % Add this line

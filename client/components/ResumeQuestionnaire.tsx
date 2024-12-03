@@ -21,6 +21,7 @@ interface LanguageSkill {
 
 
 interface FormData {
+    jobDescriptionDetails: string;
     firstName: string;
     lastName: string;
     middleInitial?: string;
@@ -159,6 +160,7 @@ const LanguageSkillForm: React.FC<{
 const ResumeQuestionnaire: React.FC = () => {
     // Initial state for form data
     const [formData, setFormData] = useState<FormData>({
+        jobDescriptionDetails: '', // Initialize new field
         firstName: '',
         lastName: '',
         middleInitial: '',
@@ -295,6 +297,23 @@ const ResumeQuestionnaire: React.FC = () => {
                 {/* Vertical line */}
                 <div className="absolute left-5 top-0 w-0.5 h-full bg-gray-300"></div>
 
+                {/* Job Information*/}
+                <section>
+                    <h2 className="text-xl font-semibold mb-4">Job Description Details</h2>
+                    <div>
+                        <label className="block mb-1">
+                        Please provide detailed information about your job responsibilities and achievements:
+                        </label>
+                        <textarea
+                        name="jobDescriptionDetails"
+                        value={formData.jobDescriptionDetails}
+                        onChange={handleChange}
+                        className="w-full p-2 border rounded bg-amber-50"
+                        rows={6}
+                        placeholder="Describe your job responsibilities and achievements in detail..."
+                        ></textarea>
+                    </div>
+                    </section>
                 {/* Personal Information Section */}
                 <section className="relative pl-12">
                     {/* Circle indicator */}

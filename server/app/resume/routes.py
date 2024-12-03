@@ -1,10 +1,12 @@
 
 # app/resume/routes.py
 
+
 from jinja2 import Template
 import uuid
 import os
 import subprocess
+import json
 from dotenv import load_dotenv
 from flask import Flask, request, send_file, render_template_string, redirect, send_from_directory, url_for
 from flask import Blueprint, request, jsonify, current_app
@@ -24,19 +26,32 @@ if TEMP_DIR is None:
     TEMP_DIR = "/files/"
 TEST = False
 
+
+import re 
+
 def escape_latex(s):
-    if isinstance(s, str):
-        return s.replace('\\', r'\textbackslash{}') \
-                .replace('&', r'\&') \
-                .replace('%', r'\%') \
-                .replace('$', r'\$') \
-                .replace('#', r'\#') \
-                .replace('_', r'\_') \
-                .replace('{', r'\{') \
-                .replace('}', r'\}') \
-                .replace('~', r'\textasciitilde{}') \
-                .replace('^', r'\^{}')
-    return s
+    if not isinstance(s, str):
+        return s
+
+    # Map special characters to their escaped versions
+    special_chars = {
+        '\\': r'\textbackslash{}',
+        '{': r'\{',
+        '}': r'\}',
+        '#': r'\#',
+        '$': r'\$',
+        '%': r'\%',
+        '&': r'\&',
+        '_': r'\_',
+        '~': r'\textasciitilde{}',
+        '^': r'\textasciicircum{}',
+    }
+
+    # Create a regex pattern to find any of the special characters
+    pattern = re.compile('|'.join(re.escape(char) for char in special_chars.keys()))
+
+    # Replace each special character with its escaped version
+    return pattern.sub(lambda match: special_chars[match.group()], s)
 
 def escape_user_data(data):
     if isinstance(data, dict):
@@ -48,30 +63,6 @@ def escape_user_data(data):
 
 def test(out: str):
     print(out)
-
-
-def escape_latex(s):
-    if isinstance(s, str):
-        return s.replace('\\', r'\textbackslash{}') \
-                .replace('&', r'\&') \
-                .replace('%', r'\%') \
-                .replace('$', r'\$') \
-                .replace('#', r'\#') \
-                .replace('_', r'\_') \
-                .replace('{', r'\{') \
-                .replace('}', r'\}') \
-                .replace('~', r'\textasciitilde{}') \
-                .replace('^', r'\^{}')
-    return s
-
-
-def escape_user_data(data):
-    if isinstance(data, dict):
-        return {k: escape_user_data(v) for k, v in data.items()}
-    elif isinstance(data, list):
-        return [escape_user_data(item) for item in data]
-    else:
-        return escape_latex(data)
 
 
 def create_prompt(user_data):
@@ -93,30 +84,39 @@ def create_prompt(user_data):
     end_year = user_data.get('endYear', '')
     relevant_coursework = user_data.get('relevantCoursework', '')
     job_experiences = user_data.get('jobExperiences', [])
+    job_description_details = user_data.get('jobDescriptionDetails', '')
+    interests = user_data.get('interests', '')
+    tech_stack = user_data.get('techStack', '')
+    language_skills = user_data.get('languageSkills', [])
 
     # Build the prompt
-    # print("\n\n", "name:", first_name, "\n\n\n")
-    # exit(0)
     prompt = f"""
-    You are a professional resume writer. Based on the following user information, generate the content for a professional resume. Provide:\n
-    1. A compelling professional summary highlighting the user's qualifications, skills, and career objectives.\n
-    2. An education section detailing the user's academic background.\n
-    3. For each job experience, craft bullet points that emphasize responsibilities, achievements, and skills demonstrated.\n
-    User Information:\n
-    **Personal Details:**\n
-    - **Name:** {first_name} {middle_initial} {last_name}\n
-    - **Address:** {address}\n
-    - **Email:** {email}\n
-    - **Contact Number:** {contact_number}\n"""
+        You are a professional resume writer. Based on the following user information, generate the content for a professional resume. Provide:
 
+        1. A compelling professional summary highlighting the user's qualifications, skills, and career objectives.
+        2. An education section detailing the user's academic background.
+        3. For each job experience, craft bullet points that emphasize responsibilities, achievements, and skills demonstrated.
+        4. Determine the best order for the job experiences to maximize the user's qualifications.
+        5. Ensure that the bullet points for each job experience are based on the user's job descriptions and the overall job description details.
+
+        User Information:
+
+        **Personal Details:**
+        - **Name:** {first_name} {middle_initial} {last_name}
+        - **Address:** {address}
+        - **Email:** {email}
+        - **Contact Number:** {contact_number}
+        """
     if linkedin_link:
         prompt += f"- **LinkedIn:** {linkedin_link}\n"
     if github_link:
         prompt += f"- **GitHub:** {github_link}\n"
 
-    prompt += f"""**Education:**\n
-    - **College:** {college}\n
-    - **Major/Concentration:** {major_concentration}\n"""
+    prompt += f"""
+        **Education:**
+        - **College:** {college}
+        - **Major/Concentration:** {major_concentration}
+        """
 
     if second_major:
         prompt += f"- **Second Major:** {second_major}\n"
@@ -130,36 +130,75 @@ def create_prompt(user_data):
     if relevant_coursework:
         prompt += f"- **Relevant Coursework:** {relevant_coursework}\n"
 
-    prompt += "\n**Job Experiences:**\n"
+    if tech_stack:
+        prompt += f"- **Tech Stack:** {tech_stack}\n"
+    if interests:
+        prompt += f"- **Interests:** {interests}\n"
+    if language_skills:
+        prompt += f"- **Language Skills:** {language_skills}\n"
 
-    #Need to fix this with new 
+    prompt += f"""
+        **Job Description Details:**
+        {job_description_details}
+
+        **Job Experiences:**
+        """
+
     for idx, exp in enumerate(job_experiences):
         company = exp.get('company', '')
         position = exp.get('position', '')
         location = exp.get('location', '')
         description = exp.get('description', '')
-        start_year = exp.get('start_year', '')
-        end_year = exp.get('end_year', '')
+        start_year_exp = exp.get('startYear', '')
+        end_year_exp = exp.get('endYear', '')
 
         prompt += f"""
-        **Job #{idx + 1}:**\n
-        - **Company:** {company}\n
-        - **Position:** {position}\n
-        - **Location:** {location}\n
-        - **Description:** {description}\n
-        - **Start Year:** {start_year}\n
-        - **End Year:** {end_year}\n
+        **Job #{idx + 1}:**
+        - **Company:** {company}
+        - **Position:** {position}
+        - **Location:** {location}
+        - **Description:** {description}
+        - **Start Year:** {start_year_exp}
+        - **End Year:** {end_year_exp}
         """
 
     prompt += """
-    Instructions:
-    - Use a professional and engaging tone suitable for a resume.
-    - The professional summary should be 2-3 sentences.
-    - For job experiences, provide 3-5 bullet points focusing on achievements and responsibilities.
-    - Highlight any skills, technologies, or tools relevant to the user's field.
-    - Do not include any placeholders or mentions of missing information.
-    - Provide the output in plain text without any markdown formatting.
-    """
+        Instructions:
+        - Use a professional and engaging tone suitable for a resume.
+        - The professional summary should be 2-3 sentences.
+        - For job experiences, provide 3-5 bullet points focusing on achievements and responsibilities.
+        - Highlight any skills, technologies, or tools relevant to the user's field.
+        - Determine the best order for the job experiences to maximize the user's qualifications.
+        - Provide the output in JSON format as specified below.
+        - Do not include any placeholders or mentions of missing information.
+
+        Return Format (JSON):
+        {
+        "professionalSummary": "Your professional summary here.",
+        "jobExperiences": [
+            {
+            "company": "Company Name",
+            "position": "Position Title",
+            "location": "Location",
+            "startYear": "YYYY",
+            "endYear": "YYYY",
+            "bullets": [
+                "First bullet point",
+                "Second bullet point",
+                "..."
+            ]
+            },
+            {
+            "company": "Next Company",
+            "...": "...",
+            "bullets": [
+                "..."
+            ]
+            }
+            // Add more job experiences as needed
+        ]
+        }
+        """
 
     return prompt
 
@@ -183,6 +222,62 @@ def generate_resume_text(prompt):
     else:
         return "It is Adam from Vanderbilt. 4.0 GPA and amazing work experience.\nExperience #1\nExperience #2\n"
 
+
+
+
+def generate_bullet_points_and_order(prompt):
+    try:
+        client = OpenAI()
+        response = client.chat.completions.create(
+            model="gpt-3.5-turbo",  # Use the appropriate model
+            messages=[
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.7,
+            max_tokens=1500,
+            n=1,
+            stop=None,
+        )
+
+        assistant_message = response.choices[0].message.content.strip()
+        print(assistant_message)
+        return assistant_message
+
+    except Exception as e:
+        current_app.logger.error(f"Error generating bullet points and order: {e}", exc_info=True)
+        return None
+
+def process_chatgpt_response(chatgpt_response, user_data):
+    if not chatgpt_response:
+        # If there's an error or no response, return the original job experiences
+        return user_data.get('jobExperiences', [])
+
+    try:
+        # Extract JSON from the response
+        json_start = chatgpt_response.find('{')
+        json_end = chatgpt_response.rfind('}') + 1
+        json_data = chatgpt_response[json_start:json_end]
+
+        data = json.loads(json_data)
+
+        # Escape job experiences
+        job_experiences = data.get('jobExperiences', [])
+
+        for job in job_experiences:
+            job['company'] = escape_latex(job.get('company', ''))
+            job['position'] = escape_latex(job.get('position', ''))
+            job['location'] = escape_latex(job.get('location', ''))
+            job['startYear'] = escape_latex(job.get('startYear', ''))
+            job['endYear'] = escape_latex(job.get('endYear', ''))
+            # Escape bullets
+            job['bullets'] = [escape_latex(bullet) for bullet in job.get('bullets', [])]
+
+        return job_experiences
+
+    except json.JSONDecodeError as e:
+        current_app.logger.error(f"JSON decoding error: {e}", exc_info=True)
+        # If there's an error parsing the response, return the original job experiences
+        return user_data.get('jobExperiences', [])
 
 @resume_bp.route('/generateresume/', methods=['POST'])
 def generate_resume():
@@ -208,6 +303,7 @@ def generate_resume():
         user_data = request.get_json()
         print("User data received:", user_data)
         # Extract user data
+        job_description_details = user_data.get('jobDescriptionDetails', '')
         first_name = user_data.get('firstName', '')
         last_name = user_data.get('lastName', '')
         middle_initial = user_data.get('middleInitial', '')
@@ -347,15 +443,21 @@ def generate_resume():
         finally:
             cursor.close()
             conn.close()
-        # Escape user data and process job descriptions
+
+        # Create the prompt
+        prompt = create_prompt(user_data)
+
+        # Generate bullet points and order
+        chatgpt_response = generate_bullet_points_and_order(prompt)
+
+        # Process the response
+        ordered_job_experiences = process_chatgpt_response(chatgpt_response, job_experiences)
+
+        # Escape user data
         escaped_user_data = escape_user_data(user_data)
 
-        # Process job descriptions into bullets
-        for job in escaped_user_data.get('jobExperiences', []):
-            job['bullets'] = job.get('description', '').split('\n')
-
-        # Optionally, you can add a 'professionalSummary' field if you want
-        # escaped_user_data['professionalSummary'] = generate_professional_summary(user_data)
+        # Replace job experiences with the ordered ones
+        escaped_user_data['jobExperiences'] = ordered_job_experiences
 
         # Read the LaTeX template
         with open("cv.tex", 'r') as file:
