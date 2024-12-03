@@ -533,13 +533,10 @@ def generate_pdf(uid, questionnaire_id, latex_content):
         # Catch all other exceptions
         error_type = type(e).__name__
         error_message = str(e)
-        traceback_details = traceback.format_exc()
         print(f"Unexpected error ({error_type}): {error_message}")
-        print("Traceback details:\n", traceback_details)
         return {
             "error": f"An unexpected error occurred: {error_type}",
             "details": error_message,
-            "traceback": traceback_details
         }, 500
 
     return view_pdf(pdf_id)
