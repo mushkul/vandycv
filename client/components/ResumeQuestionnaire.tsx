@@ -625,7 +625,7 @@ const ResumeQuestionnaire: React.FC = () => {
                         <button
                             type="button"
                             onClick={addJobExperience}
-                            className="bg-transparent text-white px-4 py-2 rounded hover:bg-amber-500 transition-colors"
+                            className="border border-amber-500 text-amber-500 bg-transparent hover:bg-amber-500 hover:text-white px-4 py-2 rounded transition-colors"
                         >
                             Add New Experience
                         </button>
