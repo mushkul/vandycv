@@ -20,15 +20,13 @@ def create_app():
 
     # Load the API key from vandy-cv-openai-key.json
     config_path = os.path.join(app.root_path, '..', 'vandy-cv-openai-key.json')
-    openai_api_key = os.environ.get('OPENAI_API_KEY')
-    print("IT IS HERE", openai_api_key)
-    # try:
-    #     with open(config_path) as config_file:
-    #         config = json.load(config_file)
-    #         openai_api_key = config.get('OPENAI_API_KEY')
-    # except FileNotFoundError:
-    #     raise FileNotFoundError(
-    #         "Configuration file 'vandy-cv-openai-key.json' not found.")
+    try:
+        with open(config_path) as config_file:
+            config = json.load(config_file)
+            openai_api_key = config.get('OPENAI_API_KEY')
+    except FileNotFoundError:
+        raise FileNotFoundError(
+            "Configuration file 'vandy-cv-openai-key.json' not found.")
 
     # print("\n\n\n", openai_api_key, "\n\n\n")
     # Ensure the API key is available

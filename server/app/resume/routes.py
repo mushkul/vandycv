@@ -2,6 +2,7 @@
 # app/resume/routes.py
 
 
+import re
 from jinja2 import Template
 import uuid
 import os
@@ -17,7 +18,7 @@ os.environ["PATH"] += os.pathsep + "/opt/render/project/src/server"
 
 # from openai.error import OpenAIError
 
-#for testing purposes
+# for testing purposes
 
 resume_bp = Blueprint('resume_bp', __name__)
 load_dotenv()
@@ -26,8 +27,6 @@ if TEMP_DIR is None:
     TEMP_DIR = "/files/"
 TEST = False
 
-
-import re 
 
 def escape_latex(s):
     if not isinstance(s, str):
@@ -48,10 +47,12 @@ def escape_latex(s):
     }
 
     # Create a regex pattern to find any of the special characters
-    pattern = re.compile('|'.join(re.escape(char) for char in special_chars.keys()))
+    pattern = re.compile('|'.join(re.escape(char)
+                         for char in special_chars.keys()))
 
     # Replace each special character with its escaped version
     return pattern.sub(lambda match: special_chars[match.group()], s)
+
 
 def escape_user_data(data):
     if isinstance(data, dict):
@@ -60,6 +61,7 @@ def escape_user_data(data):
         return [escape_user_data(item) for item in data]
     else:
         return escape_latex(data)
+
 
 def test(out: str):
     print(out)
@@ -223,9 +225,8 @@ def generate_resume_text(prompt):
         return "It is Adam from Vanderbilt. 4.0 GPA and amazing work experience.\nExperience #1\nExperience #2\n"
 
 
-
-
 def generate_bullet_points_and_order(prompt):
+    print("HERE", os.environ["OPENAI_API_KEY"])
     try:
         client = OpenAI()
         response = client.chat.completions.create(
@@ -244,8 +245,10 @@ def generate_bullet_points_and_order(prompt):
         return assistant_message
 
     except Exception as e:
-        current_app.logger.error(f"Error generating bullet points and order: {e}", exc_info=True)
+        current_app.logger.error(
+            f"Error generating bullet points and order: {e}", exc_info=True)
         return None
+
 
 def process_chatgpt_response(chatgpt_response, user_data):
     if not chatgpt_response:
@@ -270,7 +273,8 @@ def process_chatgpt_response(chatgpt_response, user_data):
             job['startYear'] = escape_latex(job.get('startYear', ''))
             job['endYear'] = escape_latex(job.get('endYear', ''))
             # Escape bullets
-            job['bullets'] = [escape_latex(bullet) for bullet in job.get('bullets', [])]
+            job['bullets'] = [escape_latex(bullet)
+                              for bullet in job.get('bullets', [])]
 
         return job_experiences
 
@@ -278,6 +282,7 @@ def process_chatgpt_response(chatgpt_response, user_data):
         current_app.logger.error(f"JSON decoding error: {e}", exc_info=True)
         # If there's an error parsing the response, return the original job experiences
         return user_data.get('jobExperiences', [])
+
 
 @resume_bp.route('/generateresume/', methods=['POST'])
 def generate_resume():
@@ -393,7 +398,7 @@ def generate_resume():
                     start_year,
                     end_year
                 ))
-            
+
             insert_language_skill_query = """
                 INSERT INTO language_skills (
                     questionnaire_id, language, proficiency
@@ -406,10 +411,9 @@ def generate_resume():
                 cursor.execute(insert_language_skill_query, (
                     questionnaire_id, language, proficiency
                 ))
-            
-            
 
-            tech_stack_list = [tech.strip() for tech in tech_stack.split(',') if tech.strip()]
+            tech_stack_list = [tech.strip()
+                               for tech in tech_stack.split(',') if tech.strip()]
             insert_tech_stack_query = """
                 INSERT INTO tech_stacks (
                     questionnaire_id, tech
@@ -421,8 +425,8 @@ def generate_resume():
                     questionnaire_id, tech
                 ))
 
-        
-            interests_list = [interest.strip() for interest in interests.split(',') if interest.strip()]
+            interests_list = [interest.strip()
+                              for interest in interests.split(',') if interest.strip()]
             insert_interest_query = """
                 INSERT INTO interests (
                     questionnaire_id, interest
@@ -451,7 +455,8 @@ def generate_resume():
         chatgpt_response = generate_bullet_points_and_order(prompt)
 
         # Process the response
-        ordered_job_experiences = process_chatgpt_response(chatgpt_response, job_experiences)
+        ordered_job_experiences = process_chatgpt_response(
+            chatgpt_response, job_experiences)
 
         # Escape user data
         escaped_user_data = escape_user_data(user_data)
@@ -475,11 +480,11 @@ def generate_resume():
         return jsonify({'questionnaire_id': questionnaire_id})
 
         # Optionally, generate the resume text
-        #prompt = create_prompt(user_data)
-        #generated_text = generate_resume_text(prompt)
+        # prompt = create_prompt(user_data)
+        # generated_text = generate_resume_text(prompt)
 
         # Return the generated text to the frontend
-        #return jsonify({'generatedText': generated_text})
+        # return jsonify({'generatedText': generated_text})
 
     except Exception as e:
         current_app.logger.error(f'Unexpected error: {e}')
@@ -520,7 +525,6 @@ def generate_pdf(uid, questionnaire_id, latex_content):
         error_message = e.stderr.decode()
         print("Error during PDF generation:", error_message)
         return {"error": "Failed to generate PDF", "details": error_message}, 500
-
 
     return view_pdf(pdf_id)
 # redirect(url_for('view_pdf', pdf_id=pdf_id))
@@ -576,6 +580,7 @@ def get_pdf1(uid, questionnaire_id):
     print(questionnaire_id)
     return send_file(os.path.join(TEMP_DIR, f"{uid}_{questionnaire_id}.pdf"))
 
+
 @resume_bp.route('/resumes/', methods=['GET'])
 def get_resumes():
     try:
@@ -625,4 +630,3 @@ def get_resumes():
     except Exception as e:
         current_app.logger.error(f'Error fetching resumes: {e}', exc_info=True)
         return jsonify({'error': 'An error occurred while fetching resumes.'}), 500
-
