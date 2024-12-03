@@ -468,7 +468,11 @@ def generate_resume():
         rendered_latex = template.render(**escaped_user_data)
 
         # Generate PDF
-        return generate_pdf(uid, questionnaire_id, rendered_latex)
+        # Generate PDF and get the file path
+        pdf_file_path = generate_pdf(uid, questionnaire_id, rendered_latex)
+
+        # Return JSON response with questionnaire_id
+        return jsonify({'questionnaire_id': questionnaire_id})
 
         # Optionally, generate the resume text
         #prompt = create_prompt(user_data)
@@ -524,6 +528,7 @@ def generate_pdf(uid, questionnaire_id, latex_content):
 
 # @resume_bp.route('/view_pdf/<pdf_id>')
 def view_pdf(pdf_id):
+    print("got to view pdf")
     pdf_file_path = os.path.join(TEMP_DIR, f"{pdf_id}.pdf")
     if not os.path.exists(pdf_file_path):
         return {"error": "PDF not found"}, 404

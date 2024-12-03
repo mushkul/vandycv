@@ -4,6 +4,7 @@ import axios from 'axios';
 import React, { useState } from 'react';
 import { auth } from '../firebase.js';
 
+
 // Define interfaces for TypeScript
 interface JobExperience {
     company: string;
@@ -158,6 +159,10 @@ const LanguageSkillForm: React.FC<{
 );
 
 const ResumeQuestionnaire: React.FC = () => {
+
+    const [resumeReady, setResumeReady] = useState<boolean>(false);
+    const [generatedQuestionnaireId, setGeneratedQuestionnaireId] = useState<number | null>(null);
+
     // Initial state for form data
     const [formData, setFormData] = useState<FormData>({
         jobDescriptionDetails: '', // Initialize new field
@@ -231,56 +236,89 @@ const ResumeQuestionnaire: React.FC = () => {
         }
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const fetchAndOpenPDF = async (questionnaire_id: number) => {
+        try {
+          const user = auth.currentUser;
+          if (user) {
+            const idToken = await user.getIdToken();
+            const uid = user.uid;
+      
+            const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/pdfs/${uid}/${questionnaire_id}`;
+            const response = await axios.get(apiUrl, {
+              headers: {
+                'Authorization': `Bearer ${idToken}`,
+              },
+              responseType: 'blob',
+            });
+      
+            const pdfBlob = new Blob([response.data], { type: 'application/pdf' });
+            const pdfUrl = URL.createObjectURL(pdfBlob);
+            window.open(pdfUrl, '_blank');
+          } else {
+            setError('User not authenticated');
+          }
+        } catch (err) {
+          console.error(err);
+          setError('An error occurred while fetching the PDF.');
+        } finally {
+          // Close the modal in case of error as well
+          setResumeReady(false);
+        }
+      };
+
+      const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
         setError('');
-
+      
         // Basic validation
         if (
-            !formData.firstName ||
-            !formData.lastName ||
-            !formData.email ||
-            !formData.contactNumber
+          !formData.firstName ||
+          !formData.lastName ||
+          !formData.email ||
+          !formData.contactNumber
         ) {
-            setError('Please fill in all required fields.');
-            setLoading(false);
-            return;
+          setError('Please fill in all required fields.');
+          setLoading(false);
+          return;
         }
-
+      
         try {
             const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/generateresume/`;
-
+        
             const user = auth.currentUser;
             if (user) {
-                // Get the ID token
-                const idToken = await user.getIdToken();
-
-                // Make the request with the ID token in the Authorization header
-                const response = await axios.post(apiUrl, formData, {
-                    headers: {
-                        Authorization: `Bearer ${idToken}`,
-                    },
-                    responseType: 'blob',
-                });
-
-                const pdfBlob = new Blob([response.data], { type: 'application/pdf' });
-                const pdfUrl = URL.createObjectURL(pdfBlob);
-
-                // Open the PDF in a new tab
-                window.open(pdfUrl, '_blank');
+              // Get the ID token
+              const idToken = await user.getIdToken();
+        
+              // Make the request with the ID token in the Authorization header
+              const response = await axios.post(apiUrl, formData, {
+                headers: {
+                  Authorization: `Bearer ${idToken}`,
+                },
+              });
+        
+              const data = response.data;
+        
+              if (data.questionnaire_id) {
+                // Set the state to indicate the resume is ready
+                setGeneratedQuestionnaireId(data.questionnaire_id);
+                setResumeReady(true);
+              } else if (data.error) {
+                setError(data.error);
+              }
             } else {
-                setError('User not authenticated');
-                setLoading(false);
-                return;
+              setError('User not authenticated');
+              setLoading(false);
+              return;
             }
-        } catch (err) {
+          } catch (err) {
             console.error(err);
             setError('An error occurred while generating the resume.');
-        } finally {
+          } finally {
             setLoading(false);
-        }
-    };
+          }
+        };
 
     return (
         <div className="max-w-4xl mx-auto p-6 bg-white">
@@ -635,6 +673,33 @@ const ResumeQuestionnaire: React.FC = () => {
             {/* Display loading and error messages */}
             {loading && <p className="text-center mt-6">Generating your resume...</p>}
             {error && <p className="text-center text-red-500 mt-6">{error}</p>}
+
+            {/* Modal */}
+            {resumeReady && (
+                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+                <div className="bg-white p-6 rounded shadow-md">
+                    <h2 className="text-xl font-semibold mb-4">Resume Ready!</h2>
+                    <p>Your resume has been generated successfully.</p>
+                    <div className="mt-6 flex justify-end">
+                    <button
+                        onClick={() => setResumeReady(false)}
+                        className="mr-2 px-4 py-2 rounded border border-gray-300 hover:bg-gray-100 transition-colors"
+                    >
+                        Close
+                    </button>
+                    <button
+                        onClick={() => {
+                        fetchAndOpenPDF(generatedQuestionnaireId!);
+                        setResumeReady(false);
+                        }}
+                        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
+                    >
+                        View Resume
+                    </button>
+                    </div>
+                </div>
+                </div>
+            )}
         </div>
     );
 };
