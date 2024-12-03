@@ -503,7 +503,7 @@ def generate_pdf(uid, questionnaire_id, latex_content):
     TECTONIC_ADDRESS = "tectonic"
     if TEMP_DIR is None:
         TEMP_DIR = "/files/"
-        TECTONIC_ADDRESS = "../tectonic"
+        TECTONIC_ADDRESS = "~/project/src/server/tectonic"
     print("PERSISTENT_ADDRESS", TEMP_DIR)
     # latex_content = request.json.get("latex_content")
     if not latex_content:
