@@ -55,6 +55,7 @@ const JobExperienceForm: React.FC<{
     <section key={index} className="mb-6">
         <h2 className="text-xl font-semibold mb-4">Job Experience #{index + 1}</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Company */}
             <div>
                 <label className="block mb-1">Company: *</label>
                 <input
@@ -63,9 +64,11 @@ const JobExperienceForm: React.FC<{
                     value={experience.company}
                     onChange={(e) => onChange(index, 'company', e.target.value)}
                     required
-                    className="w-full p-2 border rounded bg-amber-50"
+                    className="w-full p-2 border rounded bg-transparent placeholder-blue-900 placeholder-opacity-20"
+                    placeholder="Company Name"
                 />
             </div>
+            {/* Position */}
             <div>
                 <label className="block mb-1">Position: *</label>
                 <input
@@ -74,9 +77,11 @@ const JobExperienceForm: React.FC<{
                     value={experience.position}
                     onChange={(e) => onChange(index, 'position', e.target.value)}
                     required
-                    className="w-full p-2 border rounded bg-amber-50"
+                    className="w-full p-2 border rounded bg-transparent placeholder-blue-900 placeholder-opacity-20"
+                    placeholder="Job Title"
                 />
             </div>
+            {/* Location */}
             <div>
                 <label className="block mb-1">Location: *</label>
                 <input
@@ -85,9 +90,11 @@ const JobExperienceForm: React.FC<{
                     value={experience.location}
                     onChange={(e) => onChange(index, 'location', e.target.value)}
                     required
-                    className="w-full p-2 border rounded bg-amber-50"
+                    className="w-full p-2 border rounded bg-transparent placeholder-blue-900 placeholder-opacity-20"
+                    placeholder="City, State"
                 />
             </div>
+            {/* Start Year and End Year */}
             <div className="flex gap-4">
                 <div className="flex-1">
                     <label className="block mb-1">Start Year: *</label>
@@ -97,7 +104,8 @@ const JobExperienceForm: React.FC<{
                         value={experience.startYear}
                         onChange={(e) => onChange(index, 'startYear', e.target.value)}
                         required
-                        className="w-full p-2 border rounded bg-amber-50"
+                        className="w-full p-2 border rounded bg-transparent placeholder-blue-900 placeholder-opacity-20"
+                        placeholder="YYYY"
                     />
                 </div>
                 <div className="flex-1">
@@ -108,10 +116,12 @@ const JobExperienceForm: React.FC<{
                         value={experience.endYear}
                         onChange={(e) => onChange(index, 'endYear', e.target.value)}
                         required
-                        className="w-full p-2 border rounded bg-amber-50"
+                        className="w-full p-2 border rounded bg-transparent placeholder-blue-900 placeholder-opacity-20"
+                        placeholder="YYYY or Present"
                     />
                 </div>
             </div>
+            {/* Description */}
             <div className="col-span-2">
                 <label className="block mb-1">Description: *</label>
                 <textarea
@@ -119,8 +129,9 @@ const JobExperienceForm: React.FC<{
                     value={experience.description}
                     onChange={(e) => onChange(index, 'description', e.target.value)}
                     required
-                    className="w-full p-2 border rounded bg-amber-50"
+                    className="w-full p-2 border rounded bg-transparent placeholder-blue-900 placeholder-opacity-20"
                     rows={4}
+                    placeholder="Describe your responsibilities and achievements..."
                 ></textarea>
             </div>
         </div>
@@ -140,7 +151,7 @@ const LanguageSkillForm: React.FC<{
                     type="text"
                     value={skill.language}
                     onChange={(e) => onChange(index, 'language', e.target.value)}
-                    className="w-full p-2 border rounded bg-amber-50"
+                    className="w-full p-2 border rounded bg-transparent"
                 />
             </div>
             <div className="flex-1">
@@ -148,7 +159,7 @@ const LanguageSkillForm: React.FC<{
                 <select
                     value={skill.proficiency}
                     onChange={(e) => onChange(index, 'proficiency', e.target.value)}
-                    className="w-full p-2 border rounded bg-amber-50"
+                    className="w-full p-2 border rounded bg-transparent"
                 >
                     <option value="Native Proficiency">Native Proficiency</option>
                     <option value="Fluent">Fluent</option>
@@ -351,7 +362,7 @@ const ResumeQuestionnaire: React.FC = () => {
                     value={formData.resumeName}
                     onChange={handleChange}
                     required
-                    className="w-full p-2 border rounded bg-amber-50"
+                    className="w-full p-2 border rounded bg-transparent placeholder-blue-900 placeholder-opacity-20"
                     placeholder="Enter a name for your resume"
                     />
                 </div>
@@ -370,7 +381,7 @@ const ResumeQuestionnaire: React.FC = () => {
                         name="jobDescriptionDetails"
                         value={formData.jobDescriptionDetails}
                         onChange={handleChange}
-                        className="w-full p-2 border rounded bg-amber-50"
+                        className="w-full p-2 border rounded bg-transparent placeholder-blue-900 placeholder-opacity-20"
                         rows={6}
                         placeholder="Describe your job responsibilities and achievements in detail..."
                         ></textarea>
@@ -391,7 +402,7 @@ const ResumeQuestionnaire: React.FC = () => {
                                 value={formData.firstName}
                                 onChange={handleChange}
                                 required
-                                className="w-full p-2 border rounded bg-amber-50"
+                                className="w-full p-2 border rounded bg-transparent placeholder-blue-900 placeholder-opacity-20"
                                 placeholder="First Name"
                             />
                         </div>
@@ -404,7 +415,7 @@ const ResumeQuestionnaire: React.FC = () => {
                                 value={formData.lastName}
                                 onChange={handleChange}
                                 required
-                                className="w-full p-2 border rounded bg-amber-50"
+                                className="w-full p-2 border rounded bg-transparent placeholder-blue-900 placeholder-opacity-20"
                                 placeholder="Last Name"
                             />
                         </div>
@@ -417,7 +428,7 @@ const ResumeQuestionnaire: React.FC = () => {
                                 value={formData.middleInitial}
                                 onChange={handleChange}
                                 maxLength={1}
-                                className="w-full p-2 border rounded bg-amber-50"
+                                className="w-full p-2 border rounded bg-transparent placeholder-blue-900 placeholder-opacity-20"
                                 placeholder="M"
                             />
                         </div>
@@ -429,7 +440,7 @@ const ResumeQuestionnaire: React.FC = () => {
                                 name="address"
                                 value={formData.address}
                                 onChange={handleChange}
-                                className="w-full p-2 border rounded bg-amber-50"
+                                className="w-full p-2 border rounded bg-transparent placeholder-blue-900 placeholder-opacity-20"
                                 placeholder="123 Main St, City, State"
                             />
                         </div>
@@ -442,7 +453,7 @@ const ResumeQuestionnaire: React.FC = () => {
                                 value={formData.email}
                                 onChange={handleChange}
                                 required
-                                className="w-full p-2 border rounded bg-amber-50"
+                                className="w-full p-2 border rounded bg-transparent placeholder-opacity-20"
                                 placeholder="you@example.com"
                             />
                         </div>
@@ -455,7 +466,7 @@ const ResumeQuestionnaire: React.FC = () => {
                                 value={formData.contactNumber}
                                 onChange={handleChange}
                                 required
-                                className="w-full p-2 border rounded bg-amber-50"
+                                className="w-full p-2 border rounded bg-transparent placeholder-blue-900 placeholder-opacity-20"
                                 placeholder="1234567890"
                             />
                         </div>
@@ -467,7 +478,7 @@ const ResumeQuestionnaire: React.FC = () => {
                                 name="linkedinLink"
                                 value={formData.linkedinLink}
                                 onChange={handleChange}
-                                className="w-full p-2 border rounded bg-amber-50"
+                                className="w-full p-2 border rounded bg-transparent placeholder-blue-900 placeholder-opacity-20"
                                 placeholder="https://www.linkedin.com/in/yourprofile"
                             />
                         </div>
@@ -479,7 +490,7 @@ const ResumeQuestionnaire: React.FC = () => {
                                 name="githubLink"
                                 value={formData.githubLink}
                                 onChange={handleChange}
-                                className="w-full p-2 border rounded bg-amber-50"
+                                className="w-full p-2 border rounded bg-transparent placeholder-blue-900 placeholder-opacity-20"
                                 placeholder="https://github.com/yourusername"
                             />
                         </div>
@@ -501,7 +512,7 @@ const ResumeQuestionnaire: React.FC = () => {
                                 value={formData.college}
                                 onChange={handleChange}
                                 required
-                                className="w-full p-2 border rounded bg-amber-50"
+                                className="w-full p-2 border rounded bg-transparent placeholder-blue-900 placeholder-opacity-20"
                                 placeholder="University of Example"
                             />
                         </div>
@@ -514,7 +525,7 @@ const ResumeQuestionnaire: React.FC = () => {
                                 value={formData.majorConcentration}
                                 onChange={handleChange}
                                 required
-                                className="w-full p-2 border rounded bg-amber-50"
+                                className="w-full p-2 border rounded bg-transparent placeholder-blue-900 placeholder-opacity-20"
                                 placeholder="Computer Science"
                             />
                         </div>
@@ -526,7 +537,7 @@ const ResumeQuestionnaire: React.FC = () => {
                                 name="secondMajor"
                                 value={formData.secondMajor}
                                 onChange={handleChange}
-                                className="w-full p-2 border rounded bg-amber-50"
+                                className="w-full p-2 border rounded bg-transparent placeholder-blue-900 placeholder-opacity-20"
                                 placeholder="Mathematics"
                             />
                         </div>
@@ -538,7 +549,7 @@ const ResumeQuestionnaire: React.FC = () => {
                                 name="gpa"
                                 value={formData.gpa}
                                 onChange={handleChange}
-                                className="w-full p-2 border rounded bg-amber-50"
+                                className="w-full p-2 border rounded bg-transparen placeholder-blue-900 placeholder-opacity-20"
                                 placeholder="3.8"
                             />
                         </div>
@@ -551,7 +562,7 @@ const ResumeQuestionnaire: React.FC = () => {
                                 value={formData.locationOfCollege}
                                 onChange={handleChange}
                                 required
-                                className="w-full p-2 border rounded bg-amber-50"
+                                className="w-full p-2 border rounded bg-transparent placeholder-blue-900 placeholder-opacity-20"
                                 placeholder="City, State"
                             />
                         </div>
@@ -565,7 +576,7 @@ const ResumeQuestionnaire: React.FC = () => {
                                     value={formData.startYear}
                                     onChange={handleChange}
                                     required
-                                    className="w-full p-2 border rounded bg-amber-50"
+                                    className="w-full p-2 border rounded bg-transparent placeholder-blue-900 placeholder-opacity-20"
                                     placeholder="2018"
                                 />
                             </div>
@@ -577,7 +588,7 @@ const ResumeQuestionnaire: React.FC = () => {
                                     value={formData.endYear}
                                     onChange={handleChange}
                                     required
-                                    className="w-full p-2 border rounded bg-amber-50"
+                                    className="w-full p-2 border rounded bg-transparent placeholder-blue-900 placeholder-opacity-20"
                                     placeholder="2022"
                                 />
                             </div>
@@ -589,7 +600,7 @@ const ResumeQuestionnaire: React.FC = () => {
                                 name="relevantCoursework"
                                 value={formData.relevantCoursework}
                                 onChange={handleChange}
-                                className="w-full p-2 border rounded bg-amber-50"
+                                className="w-full p-2 border rounded bg-transparent placeholder-blue-900 placeholder-opacity-20"
                                 rows={3}
                                 placeholder="Algorithms, Data Structures, Operating Systems..."
                             ></textarea>
@@ -614,7 +625,7 @@ const ResumeQuestionnaire: React.FC = () => {
                         <button
                             type="button"
                             onClick={addJobExperience}
-                            className="bg-amber-400 text-white px-4 py-2 rounded hover:bg-amber-500 transition-colors"
+                            className="bg-transparent text-white px-4 py-2 rounded hover:bg-amber-500 transition-colors"
                         >
                             Add New Experience
                         </button>
@@ -651,7 +662,7 @@ const ResumeQuestionnaire: React.FC = () => {
                             ],
                         });
                         }}
-                        className="bg-amber-400 text-white px-4 py-2 rounded hover:bg-amber-500 transition-colors"
+                        className="border border-amber-500 text-amber-500 bg-transparent hover:bg-amber-500 hover:text-white px-4 py-2 rounded transition-colors"
                     >
                         Add Language
                     </button>
@@ -669,7 +680,7 @@ const ResumeQuestionnaire: React.FC = () => {
                         name="techStack"
                         value={formData.techStack}
                         onChange={handleChange}
-                        className="w-full p-2 border rounded bg-amber-50"
+                        className="w-full p-2 border rounded bg-transparent placeholder-blue-900 placeholder-opacity-20"
                         rows={2}
                         placeholder="e.g., Python, JavaScript, React"
                         ></textarea>
@@ -687,7 +698,7 @@ const ResumeQuestionnaire: React.FC = () => {
                         name="interests"
                         value={formData.interests}
                         onChange={handleChange}
-                        className="w-full p-2 border rounded bg-amber-50"
+                        className="w-full p-2 border rounded bg-transparent placeholder-blue-900 placeholder-opacity-20"
                         rows={2}
                         placeholder="e.g., Reading, Traveling, Sports"
                         ></textarea>
@@ -696,7 +707,7 @@ const ResumeQuestionnaire: React.FC = () => {
                         
                         <button
                             type="submit"
-                            className="bg-amber-400 text-white px-4 py-2 rounded hover:bg-amber-500 transition-colors"
+                            className="border border-amber-500 text-amber-500 bg-transparent hover:bg-amber-500 hover:text-white px-4 py-2 rounded transition-colors"
                         >
                             Submit
                         </button>
