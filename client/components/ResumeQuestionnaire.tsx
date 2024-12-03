@@ -6,11 +6,19 @@ import { auth } from '../firebase.js';
 
 // Define interfaces for TypeScript
 interface JobExperience {
-    name: string;
-    title: string;
+    company: string;
+    position: string;
     location: string;
     description: string;
+    startYear: string;
+    endYear: string;
 }
+
+interface LanguageSkill {
+    language: string;
+    proficiency: string;
+}
+
 
 interface FormData {
     firstName: string;
@@ -30,6 +38,9 @@ interface FormData {
     endYear: string;
     relevantCoursework?: string;
     jobExperiences: JobExperience[];
+    languageSkills: LanguageSkill[];
+    techStack: string;
+    interests: string;
 }
 
 // JobExperienceForm component
@@ -38,38 +49,31 @@ const JobExperienceForm: React.FC<{
     index: number;
     onChange: (index: number, field: string, value: string) => void;
 }> = ({ experience, index, onChange }) => (
-    <section key={index} className="relative pl-12 mb-12">
-        {/* Vertical line */}
-        <div className="absolute left-5 top-0 w-0.5 h-full bg-gray-300"></div>
-        {/* Circle indicator */}
-        <div className="absolute left-4 top-0 w-3 h-3 bg-white border-2 border-amber-500 rounded-full"></div>
+    <section key={index} className="mb-6">
         <h2 className="text-xl font-semibold mb-4">Job Experience #{index + 1}</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Job Name */}
             <div>
-                <label className="block mb-1">Job Name: *</label>
+                <label className="block mb-1">Company: *</label>
                 <input
                     type="text"
-                    name="name"
-                    value={experience.name}
-                    onChange={(e) => onChange(index, 'name', e.target.value)}
+                    name="company"
+                    value={experience.company}
+                    onChange={(e) => onChange(index, 'company', e.target.value)}
                     required
                     className="w-full p-2 border rounded bg-amber-50"
                 />
             </div>
-            {/* Title */}
             <div>
-                <label className="block mb-1">Title: *</label>
+                <label className="block mb-1">Position: *</label>
                 <input
                     type="text"
-                    name="title"
-                    value={experience.title}
-                    onChange={(e) => onChange(index, 'title', e.target.value)}
+                    name="position"
+                    value={experience.position}
+                    onChange={(e) => onChange(index, 'position', e.target.value)}
                     required
                     className="w-full p-2 border rounded bg-amber-50"
                 />
             </div>
-            {/* Location */}
             <div>
                 <label className="block mb-1">Location: *</label>
                 <input
@@ -81,9 +85,32 @@ const JobExperienceForm: React.FC<{
                     className="w-full p-2 border rounded bg-amber-50"
                 />
             </div>
-            {/* Description */}
+            <div className="flex gap-4">
+                <div className="flex-1">
+                    <label className="block mb-1">Start Year: *</label>
+                    <input
+                        type="text"
+                        name="startYear"
+                        value={experience.startYear}
+                        onChange={(e) => onChange(index, 'startYear', e.target.value)}
+                        required
+                        className="w-full p-2 border rounded bg-amber-50"
+                    />
+                </div>
+                <div className="flex-1">
+                    <label className="block mb-1">End Year: *</label>
+                    <input
+                        type="text"
+                        name="endYear"
+                        value={experience.endYear}
+                        onChange={(e) => onChange(index, 'endYear', e.target.value)}
+                        required
+                        className="w-full p-2 border rounded bg-amber-50"
+                    />
+                </div>
+            </div>
             <div className="col-span-2">
-                <label className="block mb-1">Short Description of what you did: *</label>
+                <label className="block mb-1">Description (use new lines for bullets): *</label>
                 <textarea
                     name="description"
                     value={experience.description}
@@ -95,6 +122,38 @@ const JobExperienceForm: React.FC<{
             </div>
         </div>
     </section>
+);
+
+const LanguageSkillForm: React.FC<{
+    skill: LanguageSkill;
+    index: number;
+    onChange: (index: number, field: string, value: string) => void;
+}> = ({ skill, index, onChange }) => (
+    <div className="mb-4">
+        <div className="flex gap-4">
+            <div className="flex-1">
+                <label className="block mb-1">Language:</label>
+                <input
+                    type="text"
+                    value={skill.language}
+                    onChange={(e) => onChange(index, 'language', e.target.value)}
+                    className="w-full p-2 border rounded bg-amber-50"
+                />
+            </div>
+            <div className="flex-1">
+                <label className="block mb-1">Proficiency:</label>
+                <select
+                    value={skill.proficiency}
+                    onChange={(e) => onChange(index, 'proficiency', e.target.value)}
+                    className="w-full p-2 border rounded bg-amber-50"
+                >
+                    <option value="Native Proficiency">Native Proficiency</option>
+                    <option value="Fluent">Fluent</option>
+                    <option value="Beginner">Beginner</option>
+                </select>
+            </div>
+        </div>
+    </div>
 );
 
 const ResumeQuestionnaire: React.FC = () => {
@@ -116,7 +175,10 @@ const ResumeQuestionnaire: React.FC = () => {
         startYear: '',
         endYear: '',
         relevantCoursework: '',
-        jobExperiences: [{ name: '', title: '', location: '', description: '' }],
+        jobExperiences: [{ company: '', position: '', location: '', description: '', startYear: '', endYear: '' }],
+        languageSkills: [{ language: '', proficiency: 'Native Proficiency' }],
+        techStack: '',
+        interests: '',
     });
 
     // State variables for loading and error handling
@@ -124,7 +186,7 @@ const ResumeQuestionnaire: React.FC = () => {
     const [error, setError] = useState<string>('');
 
     const handleChange = (
-        e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+        e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
     ) => {
         const { name, value } = e.target;
         setFormData((prevState) => ({
@@ -154,7 +216,14 @@ const ResumeQuestionnaire: React.FC = () => {
                 ...prevState,
                 jobExperiences: [
                     ...prevState.jobExperiences,
-                    { name: '', title: '', location: '', description: '' },
+                    { 
+                        company: '', 
+                        position: '', 
+                        location: '', 
+                        description: '', 
+                        startYear: '', 
+                        endYear: '' 
+                    },
                 ],
             }));
         }
@@ -468,6 +537,70 @@ const ResumeQuestionnaire: React.FC = () => {
                         </button>
                     </div>
                 )}
+
+                {/* Language Skills Section */}
+                <section>
+                    <h2 className="text-xl font-semibold mb-4">Language Skills</h2>
+                    {formData.languageSkills.map((skill, index) => (
+                        <LanguageSkillForm
+                            key={index}
+                            skill={skill}
+                            index={index}
+                            onChange={(idx, field, value) => {
+                                const updatedSkills = [...formData.languageSkills];
+                                updatedSkills[idx] = { ...updatedSkills[idx], [field]: value };
+                                setFormData({ ...formData, languageSkills: updatedSkills });
+                            }}
+                        />
+                    ))}
+                    <button
+                        type="button"
+                        onClick={() => {
+                            setFormData({
+                                ...formData,
+                                languageSkills: [
+                                    ...formData.languageSkills,
+                                    { language: '', proficiency: 'Native Proficiency' },
+                                ],
+                            });
+                        }}
+                        className="bg-amber-400 text-white px-4 py-2 rounded hover:bg-amber-500 transition-colors"
+                    >
+                        Add Language
+                    </button>
+                </section>
+
+                {/* Tech Stack */}
+                <section>
+                    <h2 className="text-xl font-semibold mb-4">Tech Stack</h2>
+                    <div>
+                        <label className="block mb-1">Technologies (separate by commas):</label>
+                        <textarea
+                            name="techStack"
+                            value={formData.techStack}
+                            onChange={handleChange}
+                            className="w-full p-2 border rounded bg-amber-50"
+                            rows={2}
+                            placeholder="e.g., Python, JavaScript, React"
+                        ></textarea>
+                    </div>
+                </section>
+
+                {/* Interests */}
+                <section>
+                    <h2 className="text-xl font-semibold mb-4">Interests</h2>
+                    <div>
+                        <label className="block mb-1">Interests (separate by commas):</label>
+                        <textarea
+                            name="interests"
+                            value={formData.interests}
+                            onChange={handleChange}
+                            className="w-full p-2 border rounded bg-amber-50"
+                            rows={2}
+                            placeholder="e.g., Reading, Traveling, Sports"
+                        ></textarea>
+                    </div>
+                </section>
 
                 {/* Submit Button */}
                 <div className="text-center">

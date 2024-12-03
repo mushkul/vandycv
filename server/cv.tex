@@ -106,8 +106,8 @@
 \resumeSubHeadingListStart
 {% for job in jobExperiences %}
   \resumeSubheading
-    { {{ job.name }} }{ {{ job.location }} }
-    { {{ job.title }} }{ }
+    { {{ job.company }} }{ {{ job.location }} }
+    { {{ job.position }} }{ {{ job.startYear }} -- {{ job.endYear }} }
   \resumeItemListStart
     {% for bullet in job.bullets %}
     \resumeItem{ {{ bullet }} }

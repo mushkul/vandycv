@@ -132,18 +132,23 @@ def create_prompt(user_data):
 
     prompt += "\n**Job Experiences:**\n"
 
+    #Need to fix this with new 
     for idx, exp in enumerate(job_experiences):
-        name = exp.get('name', '')
-        title = exp.get('title', '')
+        company = exp.get('company', '')
+        position = exp.get('position', '')
         location = exp.get('location', '')
         description = exp.get('description', '')
+        start_year = exp.get('start_year', '')
+        end_year = exp.get('end_year', '')
 
         prompt += f"""
         **Job #{idx + 1}:**\n
-        - **Company Name:** {name}\n
-        - **Title:** {title}\n
+        - **Company:** {company}\n
+        - **Position:** {position}\n
         - **Location:** {location}\n
         - **Description:** {description}\n
+        - **Start Year:** {start_year}\n
+        - **End Year:** {end_year}\n
         """
 
     prompt += """
@@ -220,6 +225,9 @@ def generate_resume():
         end_year = user_data.get('endYear', '')
         relevant_coursework = user_data.get('relevantCoursework', '')
         job_experiences = user_data.get('jobExperiences', [])
+        language_skills = user_data.get('languageSkills', [])  # List of dicts
+        tech_stack = user_data.get('techStack', '')  # Comma-separated string
+        interests = user_data.get('interests', '')  # Comma-separated string
 
         conn = get_db_connection()
         cursor = conn.cursor()
@@ -264,29 +272,71 @@ def generate_resume():
                            insert_questionnaire_values)
             questionnaire_id = cursor.fetchone()[0]
 
-            # Insert job experiences
             insert_experience_query = """
                 INSERT INTO job_experiences (
-                    questionnaire_id, name, title, location, description
+                    questionnaire_id, company, position, location, description, start_year, end_year
                 ) VALUES (
-                    %s, %s, %s, %s, %s
+                    %s, %s, %s, %s, %s, %s, %s
                 );
             """
 
             for exp in job_experiences:
-                name = exp.get('name', '')
-                title = exp.get('title', '')
+                company = exp.get('company', '')
+                position = exp.get('position', '')
                 location = exp.get('location', '')
                 description = exp.get('description', '')
+                start_year = exp.get('startYear', '')
+                end_year = exp.get('endYear', '')
 
                 cursor.execute(insert_experience_query, (
                     questionnaire_id,
-                    name,
-                    title,
+                    company,
+                    position,
                     location,
-                    description
+                    description,
+                    start_year,
+                    end_year
+                ))
+            
+            insert_language_skill_query = """
+                INSERT INTO language_skills (
+                    questionnaire_id, language, proficiency
+                ) VALUES (%s, %s, %s);
+            """
+
+            for lang_skill in language_skills:
+                language = lang_skill.get('language', '')
+                proficiency = lang_skill.get('proficiency', '')
+                cursor.execute(insert_language_skill_query, (
+                    questionnaire_id, language, proficiency
+                ))
+            
+            
+
+            tech_stack_list = [tech.strip() for tech in tech_stack.split(',') if tech.strip()]
+            insert_tech_stack_query = """
+                INSERT INTO tech_stacks (
+                    questionnaire_id, tech
+                ) VALUES (%s, %s);
+            """
+
+            for tech in tech_stack_list:
+                cursor.execute(insert_tech_stack_query, (
+                    questionnaire_id, tech
                 ))
 
+        
+            interests_list = [interest.strip() for interest in interests.split(',') if interest.strip()]
+            insert_interest_query = """
+                INSERT INTO interests (
+                    questionnaire_id, interest
+                ) VALUES (%s, %s);
+            """
+
+            for interest in interests_list:
+                cursor.execute(insert_interest_query, (
+                    questionnaire_id, interest
+                ))
             # Commit transaction
             conn.commit()
 
