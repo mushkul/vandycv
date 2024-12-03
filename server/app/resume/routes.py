@@ -519,6 +519,7 @@ def generate_pdf(uid, questionnaire_id, latex_content):
     print("LaTeX file written to:", tex_file_path)
     try:
         # print(TEMP_DIR, tex_file_path)
+        print("CWD", os.getcwd())
         subprocess.run([TECTONIC_ADDRESS, "-o", TEMP_DIR, tex_file_path],
                        check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         print("PDF generated at:", pdf_file_path)
