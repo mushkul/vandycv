@@ -36,7 +36,7 @@ def create_app():
 
     # Set the OpenAI API key
     os.environ["OPENAI_API_KEY"] = openai_api_key
-
+    print(openai_api_key)
     # openai.api_key = openai_api_key
 
     # Initialize Firebase Admin SDK
