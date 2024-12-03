@@ -500,8 +500,10 @@ def generate_resume():
 def generate_pdf(uid, questionnaire_id, latex_content):
     global TEMP_DIR
     TEMP_DIR = os.getenv("PERSISTENT_ADDRESS")
+    TECTONIC_ADDRESS = "tectonic"
     if TEMP_DIR is None:
         TEMP_DIR = "/files/"
+        TECTONIC_ADDRESS = "../tectonic"
     print("PERSISTENT_ADDRESS", TEMP_DIR)
     # latex_content = request.json.get("latex_content")
     if not latex_content:
@@ -517,7 +519,7 @@ def generate_pdf(uid, questionnaire_id, latex_content):
     print("LaTeX file written to:", tex_file_path)
     try:
         # print(TEMP_DIR, tex_file_path)
-        subprocess.run(["tectonic", "-o", TEMP_DIR, tex_file_path],
+        subprocess.run([TECTONIC_ADDRESS, "-o", TEMP_DIR, tex_file_path],
                        check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         print("PDF generated at:", pdf_file_path)
 
