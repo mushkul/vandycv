@@ -19,7 +19,7 @@ def create_app():
         return "Welcome to the Flask API!", 200
 
     # Load the API key from vandy-cv-openai-key.json
-    config_path = os.path.join(app.root_path, 'vandy-cv-openai-key.json')
+    config_path = os.path.join(app.root_path, '..', 'vandy-cv-openai-key.json')
     try:
         with open(config_path) as config_file:
             config = json.load(config_file)
