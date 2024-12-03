@@ -5,10 +5,10 @@ const Home = () => {
     return (
         <div className="min-h-screen flex flex-col">
             {/* Header Section */}
-            <header className="flex justify-between items-center p-4 shadow-lg bg-gray-900 shadow-md">
-                <div className="flex items-center">
+            <header className="flex justify-between items-center p-4 shadow-lg bg-gray-900 shadow-md ">
+                <div className="flex items-center ">
                     {/* Logo / Site Title */}
-                    <Link href="/" className="text-2xl font-bold text-yellow-600">
+                    <Link href="/" className="text-2xl font-bold" style={{ color: '#CFAE70' }}>
                         VandyCV
                     </Link>
 
