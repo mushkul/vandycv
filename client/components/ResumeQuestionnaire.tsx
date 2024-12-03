@@ -707,7 +707,7 @@ const ResumeQuestionnaire: React.FC = () => {
                         
                         <button
                             type="submit"
-                            className="border border-amber-500 text-amber-500 bg-transparent hover:bg-amber-500 hover:text-white px-4 py-2 rounded transition-colors"
+                            className="border hover:border-amber-500 hover:text-amber-500 hover:bg-transparent bg-amber-500 text-white px-4 py-2 rounded transition-colors"
                         >
                             Submit
                         </button>
